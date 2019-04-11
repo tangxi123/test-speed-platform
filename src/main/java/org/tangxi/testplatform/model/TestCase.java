@@ -33,11 +33,11 @@ public class TestCase {
 
     private String parameters;
 
-    private List<String> preActions;
+    private List<String> preActionNames;
 
     private List<CheckPoint> checkPoints;
 
-    private List<String> postActions;
+    private List<String> postActionNames;
 
     private LocalDateTime createdAt;
 
@@ -143,12 +143,12 @@ public class TestCase {
         this.parameters = parameters;
     }
 
-    public List<String> getPreActions() {
-        return preActions;
+    public List<String> getPreActionNames() {
+        return preActionNames;
     }
 
-    public void setPreActions(List<String> preActions) {
-        this.preActions = preActions;
+    public void setPreActionNames(List<String> preActionNames) {
+        this.preActionNames = preActionNames;
     }
 
     public List<CheckPoint> getCheckPoints() {
@@ -159,12 +159,12 @@ public class TestCase {
         this.checkPoints = checkPoints;
     }
 
-    public List<String> getPostActions() {
-        return postActions;
+    public List<String> getPostActionNames() {
+        return postActionNames;
     }
 
-    public void setPostActions(List<String> postActions) {
-        this.postActions = postActions;
+    public void setPostActionNames(List<String> postActionNames) {
+        this.postActionNames = postActionNames;
     }
 
     public LocalDateTime getCreatedAt() {
