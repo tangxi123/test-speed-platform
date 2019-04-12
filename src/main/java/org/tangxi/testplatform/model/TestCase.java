@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.tangxi.testplatform.common.util.JacksonUtil;
 import org.tangxi.testplatform.model.checkPoint.CheckPoint;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,6 +14,8 @@ public class TestCase {
 
     private Long id;
 
+    @NotBlank(message = "suite字段不能为空")
+    @Size(min=1,max = 100,message = "suite字段个数应大于1小于100")
     private String suite;
 
     private String testModule;
@@ -28,7 +32,6 @@ public class TestCase {
 
     private String url;
 
-    @JsonSerialize()
     private String headers;
 
     private String parameters;

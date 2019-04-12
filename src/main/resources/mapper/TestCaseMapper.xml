@@ -4,7 +4,7 @@
 <mapper namespace="org.tangxi.testplatform.mapper.TestCaseMapper">
     <insert id="createTestCase" parameterType="org.tangxi.testplatform.model.TestCase" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO zsi_test_case(test_name, method, url, headers, parameters, created_at, updated_at, suite,
-        test_module, descs)
+        test_module, descs, pre_action_names,post_action_names,check_points)
         VALUES (#{testName},
         #{method},
         #{url},
@@ -14,8 +14,11 @@
         #{updatedAt},
         #{suite},
         #{testModule },
-        #{descs})
-
+        #{descs},
+        #{preActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+        #{postActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+        #{checkPoints,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
+        )
     </insert>
 
 </mapper>
