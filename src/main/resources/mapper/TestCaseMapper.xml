@@ -2,23 +2,87 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.tangxi.testplatform.mapper.TestCaseMapper">
-    <insert id="createTestCase" parameterType="org.tangxi.testplatform.model.TestCase" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO zsi_test_case(test_name, method, url, headers, parameters, created_at, updated_at, suite,
-        test_module, descs, pre_action_names,post_action_names,check_points)
+    <insert id="createTestCase" parameterType="org.tangxi.testplatform.model.TestCase" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO zsi_test_case (test_name, method, url, headers, parameters, created_at, updated_at, suite,
+                                   test_module, descs, pre_action_names, post_action_names, check_points)
         VALUES (#{testName},
-        #{method},
-        #{url},
-        #{headers},
-        #{parameters},
-        #{createdAt},
-        #{updatedAt},
-        #{suite},
-        #{testModule },
-        #{descs},
-        #{preActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
-        #{postActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
-        #{checkPoints,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
+            #{method},
+            #{url},
+            #{headers},
+            #{parameters},
+            #{createdAt},
+            #{updatedAt},
+            #{suite},
+            #{testModule },
+            #{descs},
+            #{preActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+                #{postActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+                #{checkPoints,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
         )
     </insert>
+
+    <update id="updateTestcase" parameterType="org.tangxi.testplatform.model.TestCase" useGeneratedKeys="true"
+            keyProperty="id">
+        UPDATE zsi_test_case
+        SET
+            test_name         = #{testName},
+            method            = #{method},
+            url               = #{url},
+            headers           = #{headers},
+            parameters        = #{parameters},
+            created_at        = #{createdAt},
+            updated_at        = #{updatedAt},
+            suite             = #{suite},
+            test_module       = #{testModule},
+            descs             = #{descs},
+            pre_action_names  = #{preActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+            post_action_names = #{postActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+            check_points      = #{checkPoints,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
+        WHERE id = #{id}
+    </update>
+
+    <resultMap id="testcaseMap" type="org.tangxi.testplatform.model.TestCase">
+        <result typeHandler="org.tangxi.testplatform.handler.ListTypeHandler" column="check_points"
+                javaType="java.util.List" jdbcType="VARCHAR" property="checkPoints"/>
+        <result typeHandler="org.tangxi.testplatform.handler.ListTypeHandler" column="pre_action_names"
+                javaType="java.util.List" jdbcType="VARCHAR" property="preActionNames"/>
+        <result typeHandler="org.tangxi.testplatform.handler.ListTypeHandler" column="post_action_names"
+                javaType="java.util.List" jdbcType="VARCHAR" property="postActionNames"/>
+    </resultMap>
+    <select id="getTestCaseById" resultMap="testcaseMap" parameterType="int">
+        SELECT *
+        FROM zsi_test_case
+        WHERE id = #{id}
+    </select>
+
+    <select id="getTestCaseByFields" parameterType="Map" resultMap="testcaseMap">
+        SELECT * FROM zsi_test_case WHERE 1=1
+        <if test="testName != null">
+            AND test_name LIKE concat('%',#{testName},'%')
+        </if>
+        <if test="descs != null">
+            AND descs LIKE concat('%',#{descs},'%')
+        </if>
+        <if test="isDeleted == 1">
+            AND is_deleted = 1
+        </if>
+        <if test="isDisabled == 1">
+            AND is_disabled = 1
+        </if>
+    </select>
+
+    <update id="deleteTestCaseById" parameterType="java.lang.Integer" useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_test_case
+        SET is_deleted = 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="disableTestCaseById" parameterType="java.lang.Integer" useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_test_case
+        SET is_disabled = 1
+        WHERE id = #{id}
+    </update>
+
 
 </mapper>

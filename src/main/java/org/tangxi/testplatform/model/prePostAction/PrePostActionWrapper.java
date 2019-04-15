@@ -1,5 +1,7 @@
 package org.tangxi.testplatform.model.prePostAction;
 
+import org.tangxi.testplatform.common.util.JacksonUtil;
+
 /**
  * 前后置动作包装类
  */
@@ -52,5 +54,10 @@ public class PrePostActionWrapper {
 
     public void setAction(PrePostAction action) {
         this.action = action;
+    }
+
+    @Override
+    public String toString(){
+        return JacksonUtil.toJson(this);
     }
 }

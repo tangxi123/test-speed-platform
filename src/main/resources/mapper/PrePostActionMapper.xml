@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tangxi.testplatform.mapper.PrePostActionMapper">
+    <insert id="createAction" parameterType="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper" useGeneratedKeys="true" keyProperty="id">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO  zsi_prepostaction (name, descs, action_type) VALUES (#{name},#{descs},#{actionType})
+    </insert>
+
+    <!--插入类型为Sql的prepostactionsql从表数据-->
+    <insert id="createSqlAction" parameterType="org.tangxi.testplatform.model.prePostAction.PrePostAction"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO zsi_prepostaction_type_sql(host, port, `database`, user, password, `sql`, action_id)
+        VALUES (#{host},#{port},#{database},#{user},#{password},#{sql},#{actionId})
+    </insert>
+
+    <update id="updateAction"  parameterType="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper" useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_prepostaction SET `name` = #{name}, descs = #{descs}, action_type = #{actionType} WHERE id = #{id}
+    </update>
+
+    <update id="updateSqlAction"  parameterType="org.tangxi.testplatform.model.prePostAction.PrePostAction"
+            useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_prepostaction_type_sql SET
+            host = #{host},
+            port = #{port},
+            `database` = #{database},
+            `user` = #{user},
+            `password` = #{password},
+            `sql` = #{sql}
+        WHERE action_id = #{actionId}
+    </update>
+
+    <!--设置PrePostActionWrapper的resultMap-->
+    <resultMap id="actionWrapperResult" type="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper">
+        <id property="id" column="action_wrapper_id"/>
+        <result property="name"  column="name"/>
+        <result property="descs" column="descs"/>
+        <result property="actionType" column="action_type"/>
+        <association property="action" resultMap="actionResultMap"/>
+    </resultMap>
+
+    <!--设置PrePostAction的resultMap-->
+    <resultMap id="actionResultMap" type="org.tangxi.testplatform.model.prePostAction.PrePostActionSql">
+        <id property="id" column="action_sql_id"/>
+        <result property="host" column="host"/>
+        <result property="port" column="port"/>
+        <result property="database" column="database"/>
+        <result property="user" column="user"/>
+        <result property="password" column="password"/>
+        <result property="sql" column="sql"/>
+        <result property="actionId" column="action_id"/>
+    </resultMap>
+
+    <!--根据id查询前后置动作-->
+    <select id="getActionById" resultMap="actionWrapperResult">
+        SELECT
+            zp.id as action_wrapper_id,
+            zp.`name` as name,
+            zp.descs as descs,
+            zp.action_type as actionType,
+            zpts.id as action_sql_id,
+            zpts.`host` as host,
+            zpts.`database` as `database`,
+            zpts.user as user,
+            zpts.password as password,
+            zpts.`sql` as `sql`,
+            zpts.action_id as actionId
+        FROM zsi_prepostaction zp LEFT JOIN zsi_prepostaction_type_sql zpts ON zp.id = zpts.action_id
+        WHERE zp.id = #{id}
+    </select>
+
+    <select id="getActionsByFields" parameterType="Map" resultMap="actionWrapperResult">
+        SELECT * FROM zsi_prepostaction WHERE 1=1
+        <if test="name != null">
+            AND name LIKE concat('%',#{ame},'%')
+        </if>
+        <if test="descs != null">
+            AND descs LIKE concat('%',#{descs},'%')
+        </if>
+    </select>
+</mapper>

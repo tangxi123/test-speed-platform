@@ -1,6 +1,5 @@
 package org.tangxi.testplatform.common.exception;
 
-import org.springframework.dao.DuplicateKeyException;
 
 public class TestCaseDuplicateException extends RuntimeException {
     private String testName;

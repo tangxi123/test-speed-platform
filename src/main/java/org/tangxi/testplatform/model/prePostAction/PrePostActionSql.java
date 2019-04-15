@@ -1,8 +1,11 @@
 package org.tangxi.testplatform.model.prePostAction;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 /**
  * SQL类型的前后置动作
  */
+@JsonTypeName("PrePostActionSql")
 public class PrePostActionSql implements PrePostAction {
     private int id;
     private String host;
@@ -12,6 +15,7 @@ public class PrePostActionSql implements PrePostAction {
     private String password;
     private String sql;
     private int actionId;
+
 
     public int getId() {
         return id;

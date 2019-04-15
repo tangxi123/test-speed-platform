@@ -50,6 +50,26 @@ public class TestCase {
 
     private int is_passed;
 
+    private int is_deleted;
+
+    private int is_disabled;
+
+    public int getIs_deleted() {
+        return is_deleted;
+    }
+
+    public void setIs_deleted(int is_deleted) {
+        this.is_deleted = is_deleted;
+    }
+
+    public int getIs_disabled() {
+        return is_disabled;
+    }
+
+    public void setIs_disabled(int is_disabled) {
+        this.is_disabled = is_disabled;
+    }
+
     public int getIs_passed() {
         return is_passed;
     }
