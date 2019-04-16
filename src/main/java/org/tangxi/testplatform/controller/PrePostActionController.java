@@ -69,4 +69,15 @@ public class PrePostActionController {
         return prePostActionService.getActions(params);
     }
 
+    /**
+     * 根据id删除前后置动作
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/delete/{id}")
+    public Response<String> deleteActionById(@PathVariable int id){
+        LOG.info("请求的参数为：{}",id);
+        return prePostActionService.deleteActionById(id);
+    }
+
 }

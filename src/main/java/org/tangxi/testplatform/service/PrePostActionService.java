@@ -116,4 +116,21 @@ public class PrePostActionService {
             throw new UnexpectedActionException(e);
         }
     }
+
+    /**
+     * 根据id删除前后置动作
+     * @param id
+     * @return
+     */
+    public Response<String> deleteActionById(int id){
+        try{
+            int delActionCount = actionMapper.deleteActionById(id);
+            if(delActionCount == 1){
+                return new Response<>(200,null,"删除成功");
+            }
+            return new Response<>(500,null,"服务器错误");
+        }catch (Exception e){
+            throw new UnexpectedActionException(e);
+        }
+    }
 }

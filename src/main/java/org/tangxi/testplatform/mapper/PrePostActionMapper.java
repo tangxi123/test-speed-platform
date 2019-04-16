@@ -30,4 +30,7 @@ public interface PrePostActionMapper {
 
     //根据动作名称、描述分页查询前后置动作
     List<PrePostActionWrapper> getActionsByFields(Map<String,Object> params);
+
+    //根据id删除前后置动作
+    int deleteActionById(@Param("id") int id);
 }
