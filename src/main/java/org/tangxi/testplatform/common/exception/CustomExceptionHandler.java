@@ -96,4 +96,29 @@ public class CustomExceptionHandler {
         return new Response<>(500, null, "服务器错误");
     }
 
+    /**
+     * 参数名字重复的异常处理
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(ParamDuplicateException.class)
+    public Response<String> paramNameDuplicate(ParamDuplicateException e) {
+        String name = e.getName();
+        LOG.info("参数名字{}重复，请重新输入", name);
+        return new Response<>(400, null, "参数名字:" + name + "重复，请重新输入");
+    }
+
+    /**
+     * 无法预测的c桉树异常错误的处理
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(UnexpectedParamException.class)
+    public Response<String> paramUnexpectedError(UnexpectedParamException e) {
+        LOG.error(e.getMessage());
+        return new Response<>(500, null, "服务器错误");
+    }
+
 }

@@ -1,8 +1,12 @@
 package org.tangxi.testplatform.model.parameter;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 /**
  * Sql类型的Parameter
  */
+
+@JsonTypeName("ParameterSql")
 public class ParameterSql implements Parameter {
     private int id;
     private String host;

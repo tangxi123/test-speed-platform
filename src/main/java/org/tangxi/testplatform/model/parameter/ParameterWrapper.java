@@ -1,5 +1,7 @@
 package org.tangxi.testplatform.model.parameter;
 
+import org.tangxi.testplatform.common.util.JacksonUtil;
+
 /**
  * 参数类型的包装类
  */
@@ -52,5 +54,10 @@ public class ParameterWrapper {
 
     public void setParameter(Parameter parameter) {
         this.parameter = parameter;
+    }
+
+    @Override
+    public String toString(){
+        return JacksonUtil.toJson(this);
     }
 }

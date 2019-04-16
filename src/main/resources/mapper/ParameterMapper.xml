@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tangxi.testplatform.mapper.ParameterMapper">
+    <!--在主表zsi_parameter插入数据-->
+    <insert id="createParam" parameterType="org.tangxi.testplatform.model.parameter.ParameterWrapper"
+            useGeneratedKeys="true" keyProperty="id">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT last_insert_id()
+        </selectKey>
+        INSERT INTO zsi_parameter (`name`,descs,type) VALUES (#{name},#{descs},#{type})
+    </insert>
+
+    <insert id="createSqlParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO zsi_parameter_type_sql (host, port, `database`, user, password, `sql`, param, param_id)
+        VALUES (#{host}, #{port}, #{database}, #{user}, #{password}, #{sql}, #{param}, #{paramId})
+    </insert>
+
+    <update id="updateParam" parameterType="org.tangxi.testplatform.model.parameter.ParameterWrapper"
+            useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_parameter
+        SET `name` = #{name}, descs = #{descs}, type = #{type}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSqlParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter"
+            useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_parameter_type_sql
+        SET
+            `host`     = #{host},
+            port       = #{port},
+            `database` = #{database},
+            user       = #{user},
+            password   = #{password},
+            `sql`      = #{sql},
+            param      = #{param}
+        WHERE param_id = #{paramId}
+    </update>
+
+    <!--设置ParameterWrapper的resultMap-->
+    <resultMap id="parameterWrapperResult" type="org.tangxi.testplatform.model.parameter.ParameterWrapper">
+        <id property="id" column="parameter_wrapper_id"/>
+        <result property="name" column="name"/>
+        <result property="descs" column="descs"/>
+        <result property="type" column="type"/>
+        <association property="parameter" resultMap="parameterResultMap"/>
+    </resultMap>
+
+    <!--设置sqlParameter的resultMap-->
+    <resultMap id="parameterResultMap" type="org.tangxi.testplatform.model.parameter.ParameterSql">
+        <id property="id" column="parameter_sql_id"/>
+        <result property="host" column="host"/>
+        <result property="port" column="port"/>
+        <result property="database" column="database"/>
+        <result property="user" column="user"/>
+        <result property="password" column="password"/>
+        <result property="sql" column="sql"/>
+        <result property="param" column="param"/>
+        <result property="paramId" column="param_id"/>
+    </resultMap>
+
+    <!--根据Id查询parameter主表数据-->
+    <select id="getParamById" resultMap="parameterWrapperResult">
+        #         SELECT
+        #         zw.id as parameter_wrapper_id,
+        #         zw.name as name,
+        #         zw.descs as descs,
+        #         zw.type as type,
+        #         zpts.id as parameter_sql_id,
+        #         zpts.host as host,
+        #         zpts.port as port,
+        #         zpts.`database` as `database`,
+        #         zpts.user as user,
+        #         zpts.password as password,
+        #         zpts.`sql` as `sql`,
+        #         zpts.param as param,
+        #         zpts.param_id as param_id
+        SELECT *
+        FROM zsi_parameter zw LEFT JOIN zsi_parameter_type_sql zpts ON zw.id = zpts.param_id
+        WHERE zw.id = #{id}
+    </select>
+
+    <!--根据参数名字或描述分页查询参数列表-->
+    <select id="getParamsByFields" parameterType="Map" resultMap="parameterWrapperResult">
+        SELECT *
+        FROM zsi_parameter zw LEFT JOIN zsi_parameter_type_sql zpts ON zw.id = zpts.param_id WHERE 1=1
+        <if test="name != null">
+            AND name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="descs != null">
+            AND descs LIKE concat('%',#{descs},'%')
+        </if>
+    </select>
+
+</mapper>
