@@ -95,4 +95,21 @@ public class TestCaseController {
         return testCaseService.disableTestCaseById(id);
     }
 
+    /**
+     * 根据id执行测试用例
+     * @param id 测试用例id
+     * @return
+     */
+    @GetMapping("/exectest/{id}")
+    public Response<?> execTestCaseById(@PathVariable int id){
+        LOG.info("传入参数id: {}", id);
+        return testCaseService.execTestCaseById(id);
+    }
+
+    @GetMapping("/exectest/groups")
+    public Response<?> execTestCaseByGroups(@RequestBody Map<String, String> groups){
+        LOG.info("传入参数groups: {}", JacksonUtil.toJson(groups));
+        return testCaseService.execTestCaseByGroups(groups);
+    }
+
 }

@@ -16,6 +16,7 @@ import org.tangxi.testplatform.common.exception.ParamDuplicateException;
 import org.tangxi.testplatform.common.exception.UnexpectedParamException;
 import org.tangxi.testplatform.controller.ParameterController;
 import org.tangxi.testplatform.mapper.ParameterMapper;
+import org.tangxi.testplatform.mapper.TestCaseMapper;
 import org.tangxi.testplatform.model.parameter.Parameter;
 import org.tangxi.testplatform.model.parameter.ParameterType;
 import org.tangxi.testplatform.model.parameter.ParameterWrapper;
@@ -29,6 +30,9 @@ public class ParameterService {
 
     @Autowired
     ParameterMapper parameterMapper;
+
+    @Autowired
+    TestCaseMapper testCaseMapper;
 
     /**
      * 新增参数
@@ -48,7 +52,7 @@ public class ParameterService {
                     parameterMapper.createSqlParam(parameter);
                     break;
             }
-            return new Response<>(200,null,"参数创建成功");
+            return new Response<>(200, null, "参数创建成功");
         } catch (DuplicateKeyException e) {
             throw new ParamDuplicateException(parameterWrapper.getName());
         } catch (Exception e) {
@@ -58,10 +62,11 @@ public class ParameterService {
 
     /**
      * 更新参数
+     *
      * @param parameterWrapper
      * @return
      */
-    public Response<String> updateParam(@RequestBody ParameterWrapper parameterWrapper){
+    public Response<String> updateParam(@RequestBody ParameterWrapper parameterWrapper) {
         try {
             ParameterType type = parameterWrapper.getType();
             Parameter parameter = parameterWrapper.getParameter();
@@ -71,7 +76,7 @@ public class ParameterService {
                     parameterMapper.updateSqlParam(parameter);
                     break;
             }
-            return new Response<>(200,null,"参数更新成功");
+            return new Response<>(200, null, "参数更新成功");
         } catch (DuplicateKeyException e) {
             throw new ParamDuplicateException(parameterWrapper.getName());
         } catch (Exception e) {
@@ -81,28 +86,56 @@ public class ParameterService {
 
     /**
      * 根据id获取参数
+     *
      * @param id
      * @return
      */
-    public Response<ParameterWrapper> getParamById(@PathVariable  int id) {
-        try{
+    public Response<ParameterWrapper> getParamById(@PathVariable int id) {
+        try {
             ParameterWrapper parameterWrapper = parameterMapper.getParamById(id);
-            return new Response<>(200,parameterWrapper,"查询成功");
-        }catch (Exception e){
+            return new Response<>(200, parameterWrapper, "查询成功");
+        } catch (Exception e) {
             throw new UnexpectedParamException(e);
         }
 
     }
 
+    /**
+     * 根据参数名字或描述分页获取参数列表
+     *
+     * @param params
+     * @return
+     */
     @GetMapping("/query")
     public Response<PageInfo<ParameterWrapper>> getParams(Map<String, Object> params) {
-        try{
+        try {
             int pageNum = (int) params.get("pageNum");
             int pageSize = (int) params.get("pageSize");
             PageHelper.startPage(pageNum, pageSize);
             List<ParameterWrapper> parameterWrappers = parameterMapper.getParamsByFields(params);
             PageInfo<ParameterWrapper> parameters = new PageInfo<>(parameterWrappers);
-            return new Response<>(200,parameters,"查询成功");
+            return new Response<>(200, parameters, "查询成功");
+        } catch (Exception e) {
+            throw new UnexpectedParamException(e);
+        }
+    }
+
+    /**
+     * 根据id删除参数
+     *
+     * @param id
+     * @return
+     */
+    public Response<String> deleteParamById(int id) {
+        try{
+            ParameterWrapper parameterWrapper = parameterMapper.getParamById(id);
+            String name = parameterWrapper.getName();
+            int paramCount = testCaseMapper.getParamCountByParameter("${"+name+"}");
+            if(paramCount > 0){
+                return new Response<>(400,null,"存在已被使用的参数:"+name+"，删除失败");
+            }
+            parameterMapper.deleteParamById(id);
+            return new Response<>(200,null,"删除成功");
         }catch (Exception e){
             throw new UnexpectedParamException(e);
         }

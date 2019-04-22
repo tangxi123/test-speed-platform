@@ -20,7 +20,7 @@ public class TestCase {
 
     private String testModule;
 
-    private List<String> groups;
+    private String groups;
 
     private String testName;
 
@@ -102,11 +102,11 @@ public class TestCase {
         this.testModule = testModule;
     }
 
-    public List<String> getGroups() {
+    public String getGroups() {
         return groups;
     }
 
-    public void setGroups(List<String> groups) {
+    public void setGroups(String groups) {
         this.groups = groups;
     }
 

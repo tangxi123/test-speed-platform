@@ -93,4 +93,14 @@
         </if>
     </select>
 
+    <delete id="deleteParamById" parameterType="Integer">
+        DELETE FROM zsi_parameter WHERE id = #{id}
+    </delete>
+
+    <select id="getActionCountByActionName" resultType="Integer">
+        SELECT count(*) FROM zsi_parameter WHERE name = #{name}
+    </select>
+
+
+
 </mapper>

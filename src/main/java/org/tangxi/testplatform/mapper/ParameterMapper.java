@@ -30,4 +30,10 @@ public interface ParameterMapper {
 
     //根据参数名字或描述分页查询参数列表
     List<ParameterWrapper> getParamsByFields(Map<String, Object> params);
+
+    //根据id删除参数
+    int deleteParamById(int id);
+
+    //根据name查询某个参数的个数
+    int getParamCountByName(@Param("name") String name);
 }

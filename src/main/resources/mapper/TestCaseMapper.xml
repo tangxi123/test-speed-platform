@@ -84,5 +84,17 @@
         WHERE id = #{id}
     </update>
 
+    <!--查询某个参数值的个数-->
+    <select id="getParamCountByParameter" resultType="Integer" >
+        SELECT count(*) FROM zsi_test_case WHERE parameters LIKE concat('%',#{parameter},'%') AND is_deleted = 0
+    </select>
 
+    <select id="getActionCountByActionName" resultType="Integer">
+        SELECT count(*) FROM zsi_test_case WHERE (zsi_test_case.pre_action_names LIKE concat('%',#{action},'%') or post_action_names LIKE concat('%',#{action},'%')) AND is_deleted = 0
+    </select>
+
+    <!--根据groups名字查询所有的测试用例-->
+    <select id="getTestCasesByGroups" parameterType="String" resultMap="testcaseMap">
+        SELECT * FROM zsi_test_case WHERE groups = #{groups}
+    </select>
 </mapper>

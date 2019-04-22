@@ -12,11 +12,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.tangxi.testplatform.common.Response;
 import org.tangxi.testplatform.common.exception.TestCaseDuplicateException;
 import org.tangxi.testplatform.common.exception.UnexpectedTestCaseException;
+import org.tangxi.testplatform.mapper.ParameterMapper;
+import org.tangxi.testplatform.mapper.PrePostActionMapper;
 import org.tangxi.testplatform.mapper.TestCaseMapper;
 import org.tangxi.testplatform.model.TestCase;
+import org.testng.TestListenerAdapter;
+import org.testng.TestNG;
+import org.testng.xml.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +33,12 @@ public class TestCaseService {
 
     @Autowired
     TestCaseMapper testCaseMapper;
+
+    @Autowired
+    ParameterMapper parameterMapper;
+
+    @Autowired
+    PrePostActionMapper prePostActionMapper;
 
     /**
      * 新增测试用例
@@ -37,6 +50,9 @@ public class TestCaseService {
         try {
             testCase.setCreatedAt(LocalDateTime.now());
             testCase.setUpdatedAt(testCase.getCreatedAt());
+            if(!preActionExists(testCase) || !postActionExists(testCase)){
+                return new Response<>(400,null,"有不存在的前后置动作");
+            }
             testCaseMapper.createTestCase(testCase);
             return new Response<>(200, null, "测试用例创建成功");
         } catch (DuplicateKeyException e) {
@@ -141,6 +157,90 @@ public class TestCaseService {
         } catch (Exception e) {
             throw new UnexpectedTestCaseException(e);
         }
+    }
+
+    /**
+     * 根据id执行测试用例
+     * @param id 测试用例id
+     * @return
+     */
+    public Response<?> execTestCaseById(int id){
+        HashMap<String, String> params = new HashMap<>();
+        params.put("id", String.valueOf(id));
+        TestListenerAdapter testListenerAdapter = new TestListenerAdapter();
+        TestNG testng = new TestNG();
+        TestCase testCase = testCaseMapper.getTestCaseById(id);
+        XmlSuite suite = new XmlSuite();
+        suite.setParameters(params);
+        suite.setName(testCase.getSuite());
+        XmlTest test = new XmlTest(suite);
+        test.setName("parameter接口相关测试");
+//        test.setParameters(params);
+        List<XmlClass> classes = new ArrayList<>();
+        classes.add(new XmlClass("org.tangxi.testcase.execution.TestApplication"));
+        test.setXmlClasses(classes);
+        List<XmlSuite> suites = new ArrayList<XmlSuite>();
+        suites.add(suite);
+        testng.setXmlSuites(suites);
+        testng.run();
+        return null;
+    }
+
+    /**
+     * 根据子模块（group）执行测试用例
+     * @param groups
+     * @return
+     */
+    public Response<?> execTestCaseByGroups(Map<String, String> groups){
+        String group = (String)groups.get("groups");
+        TestListenerAdapter testListenerAdapter = new TestListenerAdapter();
+        TestNG testng = new TestNG();
+        List<TestCase> testCases = testCaseMapper.getTestCasesByGroups(group);
+        XmlSuite suite = new XmlSuite();
+        suite.setName("testPlatform-api");
+        XmlTest test = new XmlTest();
+        test.setName("parameter接口相关测试");
+        XmlGroups xmlGroups = new XmlGroups();
+        XmlRun xmlRun = new XmlRun();
+        xmlRun.onInclude(group);
+        xmlGroups.setRun(xmlRun);
+        test.setGroups(xmlGroups);
+        List<XmlClass> classes = new ArrayList<>();
+        classes.add(new XmlClass("org.tangxi.testcase.execution.TestApplication"));
+        test.setXmlClasses(classes);
+        List<XmlSuite> suites = new ArrayList<XmlSuite>();
+        suites.add(suite);
+        testng.setXmlSuites(suites);
+        testng.run();
+        return null;
+    }
+
+    private int getParamCount(TestCase testCase){
+        String parameters = testCase.getParameters();
+        int paramCount = parameterMapper.getParamCountByName(parameters);
+        return paramCount;
+    }
+
+    private boolean preActionExists(TestCase testCase){
+        List<String> preActionNames = testCase.getPreActionNames();
+        for(String name : preActionNames){
+            int actionCount = prePostActionMapper.getActionCountByName(name);
+            if(actionCount < 1){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean postActionExists(TestCase testCase){
+        List<String> postActionNames = testCase.getPostActionNames();
+        for(String name : postActionNames){
+            int actionCount = prePostActionMapper.getActionCountByName(name);
+            if(actionCount < 1){
+                return false;
+            }
+        }
+        return true;
     }
 }
 

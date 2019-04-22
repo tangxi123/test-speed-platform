@@ -33,4 +33,7 @@ public interface PrePostActionMapper {
 
     //根据id删除前后置动作
     int deleteActionById(@Param("id") int id);
+
+    //根据name查询某个前后置动作的个数
+    int getActionCountByName(@Param("name") String name);
 }

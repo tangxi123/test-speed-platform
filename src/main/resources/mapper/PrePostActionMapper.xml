@@ -84,4 +84,8 @@
     <delete id="deleteActionById" parameterType="Integer">
         DELETE FROM zsi_prepostaction WHERE id = #{id}
     </delete>
+
+    <select id="getActionCountByName" resultType="Integer">
+        SELECT count(*) FROM zsi_prepostaction WHERE name = #{name}
+    </select>
 </mapper>

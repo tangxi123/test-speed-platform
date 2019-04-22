@@ -14,6 +14,7 @@ import org.tangxi.testplatform.common.Response;
 import org.tangxi.testplatform.common.exception.ActionDuplicateException;
 import org.tangxi.testplatform.common.exception.UnexpectedActionException;
 import org.tangxi.testplatform.mapper.PrePostActionMapper;
+import org.tangxi.testplatform.mapper.TestCaseMapper;
 import org.tangxi.testplatform.model.prePostAction.PrePostAction;
 import org.tangxi.testplatform.model.prePostAction.PrePostActionType;
 import org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper;
@@ -27,6 +28,9 @@ public class PrePostActionService {
 
     @Autowired
     PrePostActionMapper actionMapper;
+
+    @Autowired
+    TestCaseMapper testCaseMapper;
 
     /**
      * 创建前后置动作
@@ -124,6 +128,12 @@ public class PrePostActionService {
      */
     public Response<String> deleteActionById(int id){
         try{
+            PrePostActionWrapper actionWrapper = actionMapper.getActionById(id);
+            String name = actionWrapper.getName();
+            int actionCount = testCaseMapper.getActionCountByActionName('"'+name+'"');
+            if(actionCount > 0){
+                return new Response<>(400,null,"存在已被使用的前后置动作:"+name+"，删除失败");
+            }
             int delActionCount = actionMapper.deleteActionById(id);
             if(delActionCount == 1){
                 return new Response<>(200,null,"删除成功");

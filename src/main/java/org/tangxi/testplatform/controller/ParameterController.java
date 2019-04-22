@@ -68,4 +68,16 @@ public class ParameterController {
         return parameterService.getParams(params);
     }
 
+    /**
+     * 根据id删除参数
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/delete/{id}")
+    public Response<String> deleteParamById(@PathVariable int id) {
+        LOG.info("请求的参数为：{}", id);
+        return parameterService.deleteParamById(id);
+    }
+
 }
