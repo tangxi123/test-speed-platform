@@ -7,6 +7,24 @@ package org.tangxi.testplatform.model.prePostAction;
  */
 public enum PrePostActionType {
     SQL("sql");
+
     private String field;
-    PrePostActionType(String field){this.field = field;}
+
+    PrePostActionType(String field){
+        this.field= field;
+    }
+//    private int code;
+//    private String value;
+//    PrePostActionType(int code,String value){
+//        this.code = code;
+//        this.value = value;
+//    }
+//
+//    public String getValue() {
+//        return value;
+//    }
+//
+//    public int getCode() {
+//        return code;
+//    }
 }

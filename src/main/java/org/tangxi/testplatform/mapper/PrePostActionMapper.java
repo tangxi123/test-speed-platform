@@ -25,6 +25,15 @@ public interface PrePostActionMapper {
     //更新类型为Sql的明细数据prepostactionsql从表数据
     int updateSqlAction(PrePostAction action);
 
+    //获取所有的前后置动作不包括明细
+    List<PrePostActionWrapper> getActionWrappers(Map<String,Object> params);
+
+    //获取所有的前后置动作包括明细
+    List<PrePostActionWrapper> getAllActions();
+
+    //根据id查询sql类型的前后置动作
+    PrePostActionWrapper getSqlActionById(@Param("id") int id);
+
     //根据id获取前后置动作
     PrePostActionWrapper getActionById(@Param("id") int id);
 
@@ -33,6 +42,9 @@ public interface PrePostActionMapper {
 
     //根据id删除前后置动作
     int deleteActionById(@Param("id") int id);
+
+    //根据模块id删除前后置动作
+    int deleteActionByModuleId(@Param("moduleId") int moduleId);
 
     //根据name查询某个前后置动作的个数
     int getActionCountByName(@Param("name") String name);

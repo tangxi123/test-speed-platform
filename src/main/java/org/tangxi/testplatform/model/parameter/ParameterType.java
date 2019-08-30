@@ -6,7 +6,10 @@ package org.tangxi.testplatform.model.parameter;
  * 2019-02-13 14:00
  */
 public enum ParameterType {
-    SQL("sql");
+    SQL("sql"),
+    TOKEN("token"),
+    KEYVALUE("keyValue");
+
 
     private String field;
 

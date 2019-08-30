@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tangxi.testplatform.mapper.LogMapper">
+    <insert id="insertLog" parameterType="org.tangxi.testplatform.model.log.TestCaseLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO zsi_test_case_log (test_case_id,test_case_name,name,logs,passed_tc_count,failed_tc_count,test_result_status,module_id,report_id,result,execution_time) VALUES
+            (
+                #{testCaseId},
+                #{testCaseName},
+                #{name},
+                #{logs,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+                #{passedTcCount},
+                #{failedTcCount},
+                #{testResultStatus},
+                #{moduleId},
+                #{reportId},
+                #{result},
+                #{executionTime}
+            )
+    </insert>
+
+    <!--更新测试用例日志-->
+    <update id="updateLog" parameterType="org.tangxi.testplatform.model.log.TestCaseLog">
+        UPDATE zsi_test_case_log SET
+            module_id = #{moduleId},
+            report_id = #{reportId}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertModuleMapLog" parameterType="org.tangxi.testplatform.model.log.ModuleMapLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO zsi_module_log (module_id, name, descs, parent_module_id, passed_count, failed_count, test_result_status, exec_test_case_log,report_id) VALUES
+        <foreach item = "item" collection="list" separator=",">
+            (
+                    #{item.moduleId},
+                    #{item.name},
+                    #{item.descs},
+                    #{item.parentModuleId},
+                    #{item.passedCount},
+                    #{item.failedCount},
+                    #{item.testResultStatus},
+                    #{item.execTestCaseLog,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+                    #{item.reportId}
+            )
+        </foreach>
+    </insert>
+
+    <resultMap id="Tree" type="org.tangxi.testplatform.model.log.ModuleMapLogTree">
+        <id column="module_id" property="moduleId"/>
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="descs" property="descs"/>
+        <result column="passed_count" property="passedCount"/>
+        <result column="failed_count" property="failedCount"/>
+        <result column="test_result_status" property="testResultStatus"/>
+        <result column="parent_module_id" property="parentModuleId"/>
+        <result column="report_id" property="reportId"/>
+        <result column="exec_test_case_log" property="execTestCaseLog" javaType="List" jdbcType="VARCHAR" typeHandler="org.tangxi.testplatform.handler.ListTypeHandler"/>
+        <collection column="{moduleId=module_id,reportId=report_id}" property="children" ofType="org.tangxi.testplatform.model.log.ModuleMapLogTree" select="getModuleMapLogTreeByModuleIdAndReportId"></collection>
+    </resultMap>
+    <!--获取moduleMapLogTree-->
+    <select id="getModuleMapLogTreeByModuleIdAndReportId" resultMap="Tree">
+        SELECT * FROM zsi_module_log WHERE parent_module_id = #{moduleId} AND report_id = #{reportId}
+    </select>
+
+    <select id="getTestCaseLogByName" resultType="org.tangxi.testplatform.model.log.TestCaseLog" parameterType="String">
+        SELECT * FROM zsi_test_case_log WHERE name = #{name}
+    </select>
+
+    <select id="getTestCaseLogsById" resultType="org.tangxi.testplatform.model.log.TestCaseLog" parameterType="String">
+        SELECT * FROM zsi_test_case_log WHERE test_case_id = #{testCaseId}
+    </select>
+
+    <select id="getTestCaseLogInfoById" resultType="String" parameterType="String">
+        SELECT logs FROM zsi_test_case_log WHERE id = #{id}
+    </select>
+
+    <!--根据id查询测试日志-->
+    <select id="getTestCaseLogById" resultType="org.tangxi.testplatform.model.log.TestCaseLog" parameterType="String">
+        SELECT * FROM zsi_test_case_log WHERE id = #{id}
+    </select>
+
+    <resultMap id="testCaseLogMap" type="org.tangxi.testplatform.model.log.TestCaseLog">
+        <result column="logs" property="logs" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="org.tangxi.testplatform.handler.ListTypeHandler"/>
+    </resultMap>
+    <select id="getTestCaseLogsByFields" parameterType="Map" resultMap="testCaseLogMap">
+        SELECT * FROM zsi_test_case_log WHERE 1=1
+        <if test="searchKey != null">
+            AND test_case_name LIKE concat('%',#{searchKey},'%')
+        </if>
+        <if test="reportId !=null">
+            AND report_id = #{reportId}
+        </if>
+        <if test="moduleId != null">
+            AND module_id IN (SELECT id FROM zsi_module zm WHERE find_in_set(zm.id,getChildLst(#{moduleId})))
+        </if>
+        ORDER BY test_result_status ASC
+    </select>
+</mapper>

@@ -8,7 +8,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,include = JsonTypeInfo.As.PROPERTY,property = "type",visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(name = "ParameterSql",value = ParameterSql.class)
+        @JsonSubTypes.Type(name = "ParameterSql",value = ParameterSql.class),
+        @JsonSubTypes.Type(name = "ParameterToken",value = ParameterToken.class),
+        @JsonSubTypes.Type(name = "ParameterKeyValue",value = ParameterKeyValue.class)
 })
 public interface Parameter {
     void setParamId(int id);

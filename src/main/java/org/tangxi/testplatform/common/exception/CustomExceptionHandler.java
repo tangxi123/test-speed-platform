@@ -7,10 +7,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.tangxi.testplatform.common.Response;
+import org.tangxi.testplatform.common.exception.testcase.*;
+import org.tangxi.testplatform.execution.Execution;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.rmi.UnexpectedException;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,15 +35,70 @@ public class CustomExceptionHandler {
     }
 
     /**
+     * 执行测试用例时的错误处理
+     * @return
+     */
+    @ExceptionHandler(TestCaseRunException.class)
+    public Response<?> testCaseRunError(TestCaseRunException e){
+        LOG.error(e.getMessage());
+        Execution.logs.add("错误："+e.getMessage());
+//        throw new TestCaseRunException(e);
+        return new Response<>(400,null,e.getMessage());
+    }
+
+    /**
      * 无法预测的测试用例异常错误的处理
      *
      * @param e
      * @return
      */
     @ExceptionHandler(UnexpectedTestCaseException.class)
-    public Response<String> testCaseUnexpectedError(UnexpectedTestCaseException e) {
+    public Response<?> testCaseUnexpectedError(UnexpectedTestCaseException e){
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        e.printStackTrace(new PrintStream(outputStream));
+        String exceptionString = outputStream.toString();
+        LOG.error(exceptionString);
+//        throw new UnexpectedTestCaseException(e);
+        return new Response<>(500, null, e.getMessage());
+    }
+
+    /**
+     * 测试用例断言时发生的错误处理
+     * @param e
+     * @return
+     */
+//    @ExceptionHandler(TestCaseAssertionError.class)
+//    public Response<String> testCaseAssertionError(TestCaseAssertionError e){
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        e.printStackTrace(new PrintStream(outputStream));
+//        String exceptionString = outputStream.toString();
+//        LOG.error(exceptionString);
+//
+//        return new Response<>(400, null, e.getMessage());
+//    }
+
+    @ExceptionHandler(TestCaseAssertionError.class)
+    public Response<?> testCaseAssertionError(TestCaseAssertionError e){
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        e.printStackTrace(new PrintStream(outputStream));
+        String exceptionString = outputStream.toString();
+        LOG.error(exceptionString);
+        Execution.logs.add("错误："+exceptionString);
+        return new Response<>(400, null, e.getMessage());
+    }
+
+    /**
+     * 测试用例不存在的错误处理
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(TestCaseNotFoundException.class)
+    public Response<?> testCaseNotFoundException(TestCaseNotFoundException e){
         LOG.error(e.getMessage());
-        return new Response<>(500, null, "服务器错误");
+        Execution.logs.add("错误："+e.getMessage());
+//        throw new TestCaseNotFoundException(e);
+        return new Response<>(400,null,e.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -110,7 +168,7 @@ public class CustomExceptionHandler {
     }
 
     /**
-     * 无法预测的c桉树异常错误的处理
+     * 无法预测的参数异常错误的处理
      *
      * @param e
      * @return
@@ -121,4 +179,47 @@ public class CustomExceptionHandler {
         return new Response<>(500, null, "服务器错误");
     }
 
+    /**
+     * 无法预测的模块异常错误的处理
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(UnexpectedModuleException.class)
+    public Response<String> moduleUnexpectedError(UnexpectedModuleException e){
+        LOG.error(e.getMessage());
+        return new Response<>(500,null,"服务器错误");
+    }
+
+    /**
+     * 无法预测的url异常错误的处理
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(UnexpectedUrlException.class)
+    public Response<String> urlUnexpectedError(UnexpectedUrlException e){
+        LOG.error(e.getMessage());
+        return new Response<>(500,null,"服务器错误");
+    }
+
+    /**
+     * 无法预测的报告错误
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(UnexpectedReportException.class)
+    public Response<String> reportUnexpectedError(UnexpectedReportException e){
+        LOG.error(e.getMessage());
+        return new Response<>(500,null,"服务器错误");
+    }
+
+    /**
+     * 无法预测的数据库配置错误
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(UnexpectedDatabaseConfigException.class)
+    public Response<String> databaseConfigUnexpectedError(UnexpectedDatabaseConfigException e){
+        LOG.error(e.getMessage());
+        return new Response<>(500,null,"服务器错误");
+    }
 }

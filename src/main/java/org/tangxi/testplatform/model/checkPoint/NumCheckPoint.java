@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName("NumCheckPoint")
 public class NumCheckPoint implements CheckPoint {
+    private String key;
     //将要验证的类型
     private String type;
 
@@ -22,7 +23,14 @@ public class NumCheckPoint implements CheckPoint {
     //期望值
     private String expected;
 
-    @Override
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     public String getType() {
         return type;
     }
@@ -39,7 +47,6 @@ public class NumCheckPoint implements CheckPoint {
         this.numCheckPointType = numCheckPointType;
     }
 
-    @Override
     public String getCheckKey() {
         return checkKey;
     }
@@ -48,7 +55,7 @@ public class NumCheckPoint implements CheckPoint {
         this.checkKey = checkKey;
     }
 
-    @Override
+
     public String getExpected() {
         return expected;
     }
@@ -58,7 +65,6 @@ public class NumCheckPoint implements CheckPoint {
     }
 
     @JsonIgnore
-    @Override
     public CheckPointType getCheckPointType() {
         return numCheckPointType;
     }

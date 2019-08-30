@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("ListCheckPoint")
 public class ListCheckPoint implements CheckPoint {
+    private String key;
     //将要验证的类型
     private String type;
 
@@ -16,6 +17,14 @@ public class ListCheckPoint implements CheckPoint {
 
     //期望值
     private String expected;
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
 
     @Override
     public String getType() {

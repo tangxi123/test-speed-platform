@@ -14,21 +14,17 @@ public class TestCase {
 
     private Long id;
 
-    @NotBlank(message = "suite字段不能为空")
-    @Size(min=1,max = 100,message = "suite字段个数应大于1小于100")
     private String suite;
 
-    private String testModule;
+    private int moduleId;
 
-    private String groups;
+    private int baseUrlId;
 
     private String testName;
 
     private String descs;
 
     private String method;
-
-    private String baseUrl;
 
     private String url;
 
@@ -46,45 +42,19 @@ public class TestCase {
 
     private LocalDateTime updatedAt;
 
-    private String actual;
+    private LocalDateTime startTime;
 
-    private int is_passed;
+    private LocalDateTime endTime;
 
-    private int is_deleted;
+    private long executionTime;
 
-    private int is_disabled;
+    private int isPassed;
 
-    public int getIs_deleted() {
-        return is_deleted;
-    }
+    private int isDeleted;
 
-    public void setIs_deleted(int is_deleted) {
-        this.is_deleted = is_deleted;
-    }
+    private int isDsabled;
 
-    public int getIs_disabled() {
-        return is_disabled;
-    }
-
-    public void setIs_disabled(int is_disabled) {
-        this.is_disabled = is_disabled;
-    }
-
-    public int getIs_passed() {
-        return is_passed;
-    }
-
-    public void setIs_passed(int is_passed) {
-        this.is_passed = is_passed;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private String result;
 
     public String getSuite() {
         return suite;
@@ -94,20 +64,36 @@ public class TestCase {
         this.suite = suite;
     }
 
-    public String getTestModule() {
-        return testModule;
+    public int getIsPassed() {
+        return isPassed;
     }
 
-    public void setTestModule(String testModule) {
-        this.testModule = testModule;
+    public void setIsPassed(int isPassed) {
+        this.isPassed = isPassed;
     }
 
-    public String getGroups() {
-        return groups;
+    public int getIsDeleted() {
+        return isDeleted;
     }
 
-    public void setGroups(String groups) {
-        this.groups = groups;
+    public void setIsDeleted(int isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public int getIsDsabled() {
+        return isDsabled;
+    }
+
+    public void setIsDsabled(int isDsabled) {
+        this.isDsabled = isDsabled;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTestName() {
@@ -132,14 +118,6 @@ public class TestCase {
 
     public void setMethod(String method) {
         this.method = method;
-    }
-
-    public String getBaseUrl() {
-        return baseUrl;
-    }
-
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
     }
 
     public String getUrl() {
@@ -206,12 +184,52 @@ public class TestCase {
         this.updatedAt = updatedAt;
     }
 
-    public String getActual() {
-        return actual;
+    public int getModuleId() {
+        return moduleId;
     }
 
-    public void setActual(String actual) {
-        this.actual = actual;
+    public void setModuleId(int moduleId) {
+        this.moduleId = moduleId;
+    }
+
+    public int getBaseUrlId() {
+        return baseUrlId;
+    }
+
+    public void setBaseUrlId(int baseUrlId) {
+        this.baseUrlId = baseUrlId;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public long getExecutionTime() {
+        return executionTime;
+    }
+
+    public void setExecutionTime(long executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 
     @Override

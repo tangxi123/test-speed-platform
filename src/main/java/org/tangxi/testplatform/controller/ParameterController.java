@@ -13,7 +13,7 @@ import org.tangxi.testplatform.service.ParameterService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/paramters")
+@RequestMapping("/parameters")
 public class ParameterController {
     private static final Logger LOG = LoggerFactory.getLogger(ParameterController.class);
 
@@ -26,6 +26,7 @@ public class ParameterController {
      * @param parameterWrapper
      * @return
      */
+    @CrossOrigin
     @PostMapping("/create")
     public Response<String> createParam(@RequestBody ParameterWrapper parameterWrapper) {
         LOG.info("请求的参数为：{}", parameterWrapper);
@@ -38,10 +39,22 @@ public class ParameterController {
      * @param parameterWrapper
      * @return
      */
+    @CrossOrigin
     @PutMapping("/update")
     public Response<String> updateParam(@RequestBody ParameterWrapper parameterWrapper) {
         LOG.info("请求的参数为：{}", parameterWrapper);
         return parameterService.updateParam(parameterWrapper);
+    }
+
+    /**
+     * 根据参数名称、描述分页查询前后置动作不包括明细
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping("/query/paramWrappers/")
+    public Response<?> getParamWrappers(@RequestParam Map<String,Object> params){
+        LOG.info("请求的参数为：{}", JacksonUtil.toJson(params));
+        return parameterService.getParamWrappers(params);
     }
 
     /**
@@ -50,7 +63,8 @@ public class ParameterController {
      * @param id
      * @return
      */
-    @GetMapping("/{id}")
+    @CrossOrigin
+    @GetMapping("/query/{id}")
     public Response<ParameterWrapper> getParamById(@PathVariable int id) {
         LOG.info("请求的参数未：{}", id);
         return parameterService.getParamById(id);
@@ -62,7 +76,7 @@ public class ParameterController {
      * @param params
      * @return
      */
-    @GetMapping("/query")
+    @GetMapping("/query/")
     public Response<PageInfo<ParameterWrapper>> getParams(@RequestBody Map<String, Object> params) {
         LOG.info(JacksonUtil.toJson(params));
         return parameterService.getParams(params);
@@ -74,6 +88,7 @@ public class ParameterController {
      * @param id
      * @return
      */
+    @CrossOrigin
     @DeleteMapping("/delete/{id}")
     public Response<String> deleteParamById(@PathVariable int id) {
         LOG.info("请求的参数为：{}", id);

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tangxi.testplatform.mapper.DatabaseConfigMapper">
+    <insert id="createDatabaseConfig" parameterType="org.tangxi.testplatform.model.databaseConfig.DatabaseConfig" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO zsi_database_config (config_name, comment, host, `database`, `port`, user, password, driver,module_id,create_at,update_at)
+            VALUES (#{configName},#{comment},#{host},#{database},#{port},#{user},#{password},#{driver},#{moduleId},#{createAt},#{updateAt})
+    </insert>
+
+    <update id="updateDatabaseConfig" parameterType="org.tangxi.testplatform.model.databaseConfig.DatabaseConfig" keyProperty="id" useGeneratedKeys="true">
+        UPDATE zsi_database_config SET
+            config_name = #{configName},
+            comment = #{comment},
+            host = #{host},
+            `database` = #{database},
+            `port` = #{port},
+            user = #{user},
+            password = #{password},
+            driver = #{driver},
+            update_at = #{updateAt}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getDatabaseConfigById" parameterType="String" resultType="org.tangxi.testplatform.model.databaseConfig.DatabaseConfig">
+        SELECT * FROM zsi_database_config WHERE id = #{id}
+    </select>
+
+    <select id="getDatabaseConfigsByParams" parameterType="Map" resultType="org.tangxi.testplatform.model.databaseConfig.DatabaseConfig">
+        SELECT * FROM zsi_database_config WHERE module_id = #{moduleId}
+        <if test="searchKey != null">
+            AND (config_name LIKE concat('%',#{searchKey},'%') OR comment LIKE concat('%',#{comment},'%'))
+        </if>
+        ORDER BY update_at DESC
+    </select>
+
+    <select id="getAllDBConfigsByModuleId" parameterType="String" resultType="org.tangxi.testplatform.model.databaseConfig.DatabaseConfig">
+        SELECT * FROM zsi_database_config WHERE module_id = #{moduleId} ORDER BY update_at DESC
+    </select>
+
+    <!--根据id删除databaseCongfig-->
+    <delete id="deleteDatabaseConfigById" parameterType="String">
+        DELETE FROM zsi_database_config WHERE id = #{id}
+    </delete>
+
+    <!--根据id删除databaseCongfig-->
+    <delete id="deleteDatabaseConfigByModuleId" parameterType="Integer">
+        DELETE FROM zsi_database_config WHERE module_id = #{moduleId}
+    </delete>
+</mapper>

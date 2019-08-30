@@ -14,5 +14,7 @@ public interface CheckPoint {
     String getType();
     CheckPointType getCheckPointType();
     String getCheckKey();
-     String getExpected();
+    String getExpected();
+    void setCheckKey(String checkKey);
+    void setExpected(String expected);
 }

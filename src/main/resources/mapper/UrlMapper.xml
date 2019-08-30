@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tangxi.testplatform.mapper.UrlMapper">
+    <insert id="createUrl" parameterType="org.tangxi.testplatform.model.Url" useGeneratedKeys="true" keyProperty="id">
+        INSERT zsi_url (url,descs,create_at,update_at,module_id) VALUES (#{url},#{descs},#{createAt},#{updateAt},#{moduleId})
+    </insert>
+
+    <update id="updateUrl" parameterType="org.tangxi.testplatform.model.Url" useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_url SET
+            url = #{url},
+            descs = #{descs},
+            update_at = #{updateAt},
+            module_id = #{moduleId}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getUrlById" parameterType="Integer" resultType="org.tangxi.testplatform.model.Url">
+        SELECT * FROM zsi_url WHERE id = #{id}
+    </select>
+
+    <select id="getAllUrls" parameterType="Integer" resultType="org.tangxi.testplatform.model.Url">
+        SELECT * FROM zsi_url ORDER BY update_at DESC
+    </select>
+
+    <!--根据id删除url-->
+    <delete id="deleteUrlById" parameterType="Integer" >
+        DELETE FROM zsi_url WHERE id=#{id}
+    </delete>
+
+    <!--根据模块id删除url-->
+    <delete id="deleteUrlByModuleId" parameterType="Integer">
+        DELETE FROM zsi_url WHERE module_id = #{moduleId}
+    </delete>
+
+    <select id="getUrlsByUrlOrdescs" parameterType="String" resultType="org.tangxi.testplatform.model.Url">
+        <!--SELECT * FROM zsi_url WHERE 1=1-->
+        <!--<if test="url != null">-->
+            <!--AND url LIKE concat('%',#{url},'%')-->
+        <!--</if>-->
+        <!--<if test="descs != null">-->
+            <!--AND descs LIKE concat('%',#{descs},'%')-->
+        <!--</if>-->
+        SELECT * FROM zsi_url WHERE url LIKE concat('%',#{searchKey},'%') OR descs LIKE concat('%',#{searchKey},'%') ORDER BY update_at DESC
+    </select>
+
+    <select id="getUrlsByParams" parameterType="Map" resultType="org.tangxi.testplatform.model.Url">
+          SELECT * FROM zsi_url WHERE module_id = #{moduleId}
+        <if test="searchKey != ''">
+            AND (url LIKE concat('%',#{searchKey},'%') OR descs LIKE concat('%',#{searchKey},'%'))
+        </if>
+            ORDER BY update_at DESC
+    </select>
+</mapper>

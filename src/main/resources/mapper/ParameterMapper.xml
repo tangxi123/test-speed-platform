@@ -8,35 +8,74 @@
         <selectKey keyProperty="id" resultType="int" order="AFTER">
             SELECT last_insert_id()
         </selectKey>
-        INSERT INTO zsi_parameter (`name`,descs,type) VALUES (#{name},#{descs},#{type})
+        INSERT INTO zsi_parameter (`name`,descs,type,module_id,create_at,update_at) VALUES (#{name},#{descs},#{type},#{moduleId},#{createAt},#{updateAt})
     </insert>
 
+    <!--向parameterSql从表插入数据-->
     <insert id="createSqlParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO zsi_parameter_type_sql (host, port, `database`, user, password, `sql`, param, param_id)
-        VALUES (#{host}, #{port}, #{database}, #{user}, #{password}, #{sql}, #{param}, #{paramId})
+        INSERT INTO zsi_parameter_type_sql (`sql`, param, param_id,db_config_id)
+        VALUES (#{sql}, #{param}, #{paramId},#{dbConfigId})
     </insert>
 
+    <!--向parameterToken从表插入数据-->
+    <insert id="createTokenParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO zsi_parameter_type_token (url,user_data, token, param_id)
+                VALUES (#{url},#{userData},#{token},#{paramId})
+    </insert>
+
+    <!--向parameterKeyValue从表插入数据-->
+    <insert id="createKeyValueParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO zsi_parameter_type_keyvalue (`key`, value, param_id,headers)
+                VALUES (#{key},#{value},#{paramId},#{headers})
+    </insert>
+    <!--更新parameter主表数据-->
     <update id="updateParam" parameterType="org.tangxi.testplatform.model.parameter.ParameterWrapper"
             useGeneratedKeys="true" keyProperty="id">
         UPDATE zsi_parameter
-        SET `name` = #{name}, descs = #{descs}, type = #{type}
+        SET `name` = #{name}, descs = #{descs}, type = #{type}, update_at = #{updateAt},module_id = #{moduleId},headers = #{headers}
         WHERE id = #{id}
     </update>
 
+    <!--更新parameterSql从表数据-->
     <update id="updateSqlParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter"
             useGeneratedKeys="true" keyProperty="id">
         UPDATE zsi_parameter_type_sql
         SET
-            `host`     = #{host},
-            port       = #{port},
-            `database` = #{database},
-            user       = #{user},
-            password   = #{password},
             `sql`      = #{sql},
-            param      = #{param}
+            param      = #{param},
+            db_config_id = #{dbConfigId}
         WHERE param_id = #{paramId}
     </update>
+
+    <!--更新parameterTokem从表数据-->
+    <update id="updateTokenParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter"
+            useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_parameter_type_token
+        SET
+            url = #{url},
+            user_data = #{userData}
+        WHERE param_id = #{paramId}
+    </update>
+
+    <!--更新parameterKeyValue从表数据-->
+    <update id="updateKeyValueParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter"
+            useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_parameter_type_keyvalue
+        SET
+            `key` = #{key},
+            `value` = #{value}
+        WHERE param_id = #{paramId}
+    </update>
+
+    <select id="getParamWrappers" resultType="org.tangxi.testplatform.model.parameter.ParameterWrapper">
+        SELECT * FROM zsi_parameter WHERE module_id = #{moduleId}
+            <if test="searchKey != null">
+                AND (name like concat('%',#{searchKey},'%') OR descs LIKE concat('%',#{searchKey},'%'))
+            </if>
+        ORDER BY update_at DESC
+    </select>
+
 
     <!--设置ParameterWrapper的resultMap-->
     <resultMap id="parameterWrapperResult" type="org.tangxi.testplatform.model.parameter.ParameterWrapper">
@@ -44,41 +83,92 @@
         <result property="name" column="name"/>
         <result property="descs" column="descs"/>
         <result property="type" column="type"/>
-        <association property="parameter" resultMap="parameterResultMap"/>
+        <result property="moduleId" column="module_id"/>
+        <discriminator javaType="org.tangxi.testplatform.model.parameter.ParameterType" column="type">
+            <case value="SQL" resultType="org.tangxi.testplatform.model.parameter.ParameterWrapper">
+                <association property="parameter" resultMap="parameterSQLResultMap"/>
+            </case>
+            <case value="TOKEN" resultType="org.tangxi.testplatform.model.parameter.ParameterWrapper">
+                <association property="parameter" resultMap="parameterTOKENResultMap"/>
+            </case>
+            <case value="KEYVALUE" resultType="org.tangxi.testplatform.model.parameter.ParameterWrapper">
+                <association property="parameter" resultMap="parameterKEYVALUEResultMap"/>
+            </case>
+        </discriminator>
     </resultMap>
 
+
     <!--设置sqlParameter的resultMap-->
-    <resultMap id="parameterResultMap" type="org.tangxi.testplatform.model.parameter.ParameterSql">
+    <resultMap id="parameterSQLResultMap" type="org.tangxi.testplatform.model.parameter.ParameterSql">
         <id property="id" column="parameter_sql_id"/>
-        <result property="host" column="host"/>
-        <result property="port" column="port"/>
-        <result property="database" column="database"/>
-        <result property="user" column="user"/>
-        <result property="password" column="password"/>
         <result property="sql" column="sql"/>
         <result property="param" column="param"/>
+        <result property="paramId" column="param_id"/>
+        <result property="dbConfigId" column="db_config_id"/>
+    </resultMap>
+
+    <!--设置tokenParameter的resultMap-->
+    <resultMap id="parameterTOKENResultMap" type="org.tangxi.testplatform.model.parameter.ParameterToken">
+        <id property="id" column="parameter_token_id"/>
+        <result property="url" column="url"/>
+        <result property="userData" column="user_data"/>
+        <result property="paramId" column="param_id"/>
+    </resultMap>
+
+    <!--设置keyValueParameter的resultMap-->
+    <resultMap id="parameterKEYVALUEResultMap" type="org.tangxi.testplatform.model.parameter.ParameterKeyValue">
+        <id property="id" column="parameter_keyValue_id"/>
+        <result property="key" column="key"/>
+        <result property="value" column="value"/>
         <result property="paramId" column="param_id"/>
     </resultMap>
 
     <!--根据Id查询parameter主表数据-->
-    <select id="getParamById" resultMap="parameterWrapperResult">
-        #         SELECT
-        #         zw.id as parameter_wrapper_id,
-        #         zw.name as name,
-        #         zw.descs as descs,
-        #         zw.type as type,
-        #         zpts.id as parameter_sql_id,
-        #         zpts.host as host,
-        #         zpts.port as port,
-        #         zpts.`database` as `database`,
-        #         zpts.user as user,
-        #         zpts.password as password,
-        #         zpts.`sql` as `sql`,
-        #         zpts.param as param,
-        #         zpts.param_id as param_id
-        SELECT *
+    <select id="getParamWrapperById" parameterType="Integer" resultType="org.tangxi.testplatform.model.parameter.ParameterWrapper">
+        SELECT * FROM zsi_parameter WHERE id = #{id}
+    </select>
+    <!--根据id查询sql类型的参数数据-->
+    <select id="getSqlParamById" resultMap="parameterWrapperResult">
+                SELECT
+                zw.id as parameter_wrapper_id,
+                zw.name as name,
+                zw.descs as descs,
+                zw.type as type,
+                zw.module_id as module_id,
+                zpts.id as parameter_sql_id,
+                zpts.`sql` as `sql`,
+                zpts.param,
+                zpts.param_id as param_id,
+                zpts.db_config_id as db_config_id
         FROM zsi_parameter zw LEFT JOIN zsi_parameter_type_sql zpts ON zw.id = zpts.param_id
-        WHERE zw.id = #{id}
+        WHERE zw.id = #{id} ORDER BY update_at DESC
+    </select>
+
+    <select id="getTokenParamById" resultMap="parameterWrapperResult">
+        SELECT
+            zp.id as parameter_wrapper_id,
+            zp.name as name,
+            zp.descs as descs,
+            zp.type as type,
+            zptt.id as parameter_token_id,
+            zptt.url as url,
+            zptt.user_data as user_data
+        FROM zsi_parameter zp LEFT JOIN zsi_parameter_type_token zptt ON zp.id = zptt.param_id
+        WHERE zp.id = #{id}
+    </select>
+
+    <!--根据id查询keyValueParam-->
+    <select id="getKeyValueParamById" resultMap="parameterWrapperResult">
+        SELECT
+            zp.id as parameter_wrapper_id,
+            zp.name as name,
+            zp.descs as descs,
+            zp.type as type,
+            zptk.id as parameter_keyValue_id,
+            zptk.`key` as `key`,
+            zptk.`value` as `value`
+          FROM zsi_parameter zp LEFT JOIN zsi_parameter_type_keyvalue zptk ON zp.id = zptk.param_id
+          WHERE zp.id = #{id}
     </select>
 
     <!--根据参数名字或描述分页查询参数列表-->
@@ -91,14 +181,26 @@
         <if test="descs != null">
             AND descs LIKE concat('%',#{descs},'%')
         </if>
+        ORDER BY update_at DESC
     </select>
 
+    <!--根据id删除参数-->
     <delete id="deleteParamById" parameterType="Integer">
         DELETE FROM zsi_parameter WHERE id = #{id}
     </delete>
 
+    <!--根据模块id删除参数-->
+    <delete id="deleteParamByModuleId" parameterType="Integer">
+        DELETE FROM zsi_parameter WHERE module_id = #{moduleId}
+    </delete>
+
+
     <select id="getActionCountByActionName" resultType="Integer">
         SELECT count(*) FROM zsi_parameter WHERE name = #{name}
+    </select>
+
+    <select id="getParamIdByName" resultType="Integer">
+        SELECT id FROM zsi_parameter WHERE name = #{name}
     </select>
 
 

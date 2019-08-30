@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tangxi.testplatform.mapper.ModuleMapper">
+    <insert id="createModule" parameterType="org.tangxi.testplatform.model.Module" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO zsi_module (name,descs,parent_id,create_at,update_at)
+        VALUES (
+                #{name},#{descs},#{parentId},#{createAt},#{updateAt}
+        )
+    </insert>
+
+    <update id="updateModule" parameterType="org.tangxi.testplatform.model.Module" useGeneratedKeys="true" keyProperty="id">
+        UPDATE zsi_module
+            SET name = #{name},
+                descs = #{descs},
+                update_at = #{updateAt}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getModuleById" parameterType="Integer" resultType="org.tangxi.testplatform.model.Module">
+        SELECT * FROM zsi_module WHERE id=#{id} ORDER BY update_at DESC
+    </select>
+
+    <select id="getModulesByParentId" parameterType="Integer" resultType="org.tangxi.testplatform.model.Module">
+        SELECT * FROM zsi_module WHERE parent_id=#{id} ORDER BY update_at DESC
+    </select>
+
+    <select id="getSubModulesById" parameterType="Integer" resultType="org.tangxi.testplatform.model.Module">
+        SELECT * FROM zsi_module WHERE find_in_set(id,getChildLst(#{id})) ORDER BY update_at DESC
+    </select>
+
+
+    <select id="getModulesByParentIdAndSearchKey" resultType="org.tangxi.testplatform.model.Module">
+        SELECT * FROM zsi_module WHERE parent_id=#{id}
+        <if test="searchKey !=''">
+            AND (name LIKE concat('%',#{searchKey},'%') OR descs LIKE concat('%',#{searchKey},'%'))
+        </if>
+            ORDER BY update_at DESC
+    </select>
+
+
+    <resultMap id="Tree" type="org.tangxi.testplatform.model.ModuleTree">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <collection column="id" property="children" ofType="org.tangxi.testplatform.model.ModuleTree" select="getTreeByModuleId"></collection>
+    </resultMap>
+
+    <select id="getTreeByModuleId" parameterType="Integer" resultMap="Tree">
+        SELECT * FROM zsi_module WHERE parent_id=#{id} ORDER BY update_at ASC
+    </select>
+
+    <!--根据模块id删除项目以及项目下的测试用例以及基础配置-->
+    <delete id="deleteModuleByModuleId" parameterType="Integer">
+        DELETE FROM tplatform.zsi_module where tplatform.zsi_module.id = #{id};
+    </delete>
+</mapper>

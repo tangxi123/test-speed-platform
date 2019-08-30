@@ -2,19 +2,17 @@ package org.tangxi.testplatform.model.prePostAction;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.List;
+
 /**
  * SQL类型的前后置动作
  */
 @JsonTypeName("PrePostActionSql")
 public class PrePostActionSql implements PrePostAction {
     private int id;
-    private String host;
-    private String port;
-    private String database;
-    private String user;
-    private String password;
-    private String sql;
+    private List<SqlInfo> sql;
     private int actionId;
+    private String dbConfigId;
 
 
     public int getId() {
@@ -25,51 +23,12 @@ public class PrePostActionSql implements PrePostAction {
         this.id = id;
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    public String getDatabase() {
-        return database;
-    }
-
-    public void setDatabase(String database) {
-        this.database = database;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getSql() {
+    @Override
+    public List<SqlInfo> getSql() {
         return sql;
     }
 
-    public void setSql(String sql) {
+    public void setSql(List<SqlInfo> sql) {
         this.sql = sql;
     }
 
@@ -79,5 +38,13 @@ public class PrePostActionSql implements PrePostAction {
 
     public void setActionId(int actionId) {
         this.actionId = actionId;
+    }
+
+    public String getDbConfigId() {
+        return dbConfigId;
+    }
+
+    public void setDbConfigId(String dbConfigId) {
+        this.dbConfigId = dbConfigId;
     }
 }

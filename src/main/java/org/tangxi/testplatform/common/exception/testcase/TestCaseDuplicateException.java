@@ -1,4 +1,4 @@
-package org.tangxi.testplatform.common.exception;
+package org.tangxi.testplatform.common.exception.testcase;
 
 
 public class TestCaseDuplicateException extends RuntimeException {

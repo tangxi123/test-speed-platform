@@ -15,7 +15,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("actions/")
-public class PrePostActionController {
+public class
+
+
+PrePostActionController {
     private static final Logger LOG = LoggerFactory.getLogger(PrePostActionController.class);
 
     @Autowired
@@ -27,6 +30,7 @@ public class PrePostActionController {
      * @param actionWrapper
      * @return
      */
+    @CrossOrigin
     @PostMapping("/create")
     public Response<String> createAction(@RequestBody PrePostActionWrapper actionWrapper) {
         LOG.info("请求的参数为：{}", actionWrapper);
@@ -39,10 +43,17 @@ public class PrePostActionController {
      * @param actionWrapper
      * @return
      */
+    @CrossOrigin
     @PutMapping("/update")
     public Response<String> updateAction(@RequestBody PrePostActionWrapper actionWrapper) {
         LOG.info("请求的参数为{}", actionWrapper);
         return prePostActionService.updateAction(actionWrapper);
+    }
+
+    @CrossOrigin
+    @GetMapping("/query/all")
+    public Response<?> getAllActions(){
+        return prePostActionService.getAllActions();
     }
 
     /**
@@ -51,20 +62,37 @@ public class PrePostActionController {
      * @param id
      * @return
      */
-    @GetMapping("/{id}")
+    @CrossOrigin
+    @GetMapping("/query/{id}")
     public Response<PrePostActionWrapper> getActionById(@PathVariable int id) {
         LOG.info("请求的参数为：{}", id);
         return prePostActionService.getActionById(id);
     }
 
+
+
     /**
-     * 根据动作名称、描述分页查询前后置动作
+     * 根据动作名称、描述分页查询前后置动作不包括明细
      *
      * @param params
      * @return
      */
-    @GetMapping("/query")
-    public Response<PageInfo<PrePostActionWrapper>> getActions(@RequestBody Map<String, Object> params) {
+    @CrossOrigin
+    @GetMapping("/query/actionWrappers/")
+    public Response<PageInfo<PrePostActionWrapper>> getActionWrappers(@RequestParam Map<String, Object> params) {
+//        LOG.info("请求的参数为：{}", JacksonUtil.toJson(params));
+        return prePostActionService.getActionWrappers(params);
+    }
+
+    /**
+     * 根据动作名称、描述分页查询前后置动作及其明细
+     *
+     * @param params
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping("/query/")
+    public Response<PageInfo<PrePostActionWrapper>> getActions(@RequestParam Map<String, Object> params) {
         LOG.info("请求的参数为：{}", JacksonUtil.toJson(params));
         return prePostActionService.getActions(params);
     }
@@ -74,10 +102,23 @@ public class PrePostActionController {
      * @param id
      * @return
      */
+    @CrossOrigin
     @DeleteMapping("/delete/{id}")
     public Response<String> deleteActionById(@PathVariable int id){
         LOG.info("请求的参数为：{}",id);
         return prePostActionService.deleteActionById(id);
+    }
+
+    /**
+     * 执行sql
+     * @param actionWrapper
+     * @return
+     */
+    @CrossOrigin
+    @PostMapping("/executeSql")
+    public Response<?> executeSql(@RequestBody PrePostActionWrapper actionWrapper){
+        LOG.info("请求的参数为：{}",JacksonUtil.toJson(actionWrapper));
+        return prePostActionService.executeSql(actionWrapper);
     }
 
 }

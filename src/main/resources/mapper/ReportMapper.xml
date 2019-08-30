@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tangxi.testplatform.mapper.ReportMapper">
+    <insert id="insertReport" parameterType="org.tangxi.testplatform.model.testReport.Report" >
+        INSERT INTO zsi_report (id,module_id, report_name, report_time, passed_tc_count, failed_tc_count, skipped_tc_count,test_result_status,test_case_log_ids)
+                VALUES (#{id},#{moduleId},#{reportName},#{reportTime},#{passedTcCount},#{failedTcCount},#{skippedTcCount},
+                        #{testResultStatus},
+                    #{testCaseLogIds,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
+
+                );
+    </insert>
+
+    <insert id="insertReportInfo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO zsi_report_info (report_id,module_name,module_id, passed_tc_count, failed_tc_count, test_result_status, runtime,test_case_log_ids) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.reportId},#{item.moduleName},#{item.moduleId},#{item.passedTcCount},#{item.failedTcCount},#{item.testResultStatus},#{item.runtime},
+              #{item.testCaseLogIds,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getReportsByFields" parameterType="Map" resultType="org.tangxi.testplatform.model.testReport.Report">
+        SELECT * FROM zsi_report WHERE 1=1
+        <if test="searchKey != null">
+            AND (report_name LIKE concat('%',#{searchKey},'%'))
+        </if>
+        <if test="moduleId != null">
+            AND module_id = #{moduleId}
+        </if>
+        ORDER BY report_time DESC
+    </select>
+    <resultMap id="reportResultMap" type="org.tangxi.testplatform.model.testReport.Report">
+        <result column="test_case_log_ids" property="testCaseLogIds" javaType="List" jdbcType="VARCHAR" typeHandler="org.tangxi.testplatform.handler.ListTypeHandler"/>
+    </resultMap>
+    <select id="getReportById" parameterType="String" resultMap="reportResultMap">
+        SELECT * FROM zsi_report WHERE id = #{id}
+    </select>
+
+    <select id="getReportInfosByReportId" parameterType="String" resultType="org.tangxi.testplatform.model.testReport.ReportInfo">
+        SELECT * FROM zsi_report_info WHERE report_id = #{reportId}
+    </select>
+
+    <resultMap id="reportMap" type="org.tangxi.testplatform.model.testReport.ReportTestCaseInfo">
+        <result column="logs" property="logs" javaType="List" jdbcType="VARCHAR" typeHandler="org.tangxi.testplatform.handler.ListTypeHandler"/>
+    </resultMap>
+    <select id="getReportTestCaseInfoByInfoId" parameterType="String" resultMap="reportMap">
+        SELECT * FROM zsi_report_testcase_info WHERE report_info_id = #{reportInfoId}
+    </select>
+</mapper>

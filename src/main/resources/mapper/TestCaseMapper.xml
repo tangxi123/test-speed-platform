@@ -2,25 +2,50 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.tangxi.testplatform.mapper.TestCaseMapper">
-    <insert id="createTestCase" parameterType="org.tangxi.testplatform.model.TestCase" useGeneratedKeys="true"
+
+    <!--新增测试用例-->
+    <insert id="createTestCase"  parameterType="org.tangxi.testplatform.model.TestCase" useGeneratedKeys="true"
             keyProperty="id">
-        INSERT INTO zsi_test_case (test_name, method, url, headers, parameters, created_at, updated_at, suite,
-                                   test_module, descs, pre_action_names, post_action_names, check_points)
-        VALUES (#{testName},
-            #{method},
-            #{url},
-            #{headers},
-            #{parameters},
-            #{createdAt},
-            #{updatedAt},
-            #{suite},
-            #{testModule },
-            #{descs},
-            #{preActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
-                #{postActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
-                #{checkPoints,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
-        )
+        INSERT INTO zsi_test_case (test_name, method, url, base_url_id,headers, parameters, created_at, updated_at,
+        module_id,suite,descs, pre_action_names, post_action_names, check_points)
+                values(#{testName},
+                       #{method},
+                       #{url},
+                       #{baseUrlId},
+                       #{headers},
+                       #{parameters},
+                       #{createdAt},
+                       #{updatedAt},
+                       #{moduleId},
+                       #{suite},
+                       #{descs},
+                       #{preActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+                       #{postActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+                       #{checkPoints,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
+                )
     </insert>
+
+    <!--批量增加测试用例-->
+    <insert id="insertBatchTestCases" parameterType="org.tangxi.testplatform.model.TestCase" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO zsi_test_case (test_name, method, url, base_url_id,headers, created_at, updated_at,
+                                    module_id,suite)
+        VALUES
+        <foreach item = "item" collection="list" separator=",">
+         (
+            #{item.testName},
+            #{item.method},
+            #{item.url},
+            #{item.baseUrlId},
+            #{item.headers},
+            #{item.createdAt},
+            #{item.updatedAt},
+            #{item.moduleId},
+            #{item.suite}
+        )
+        </foreach>
+    </insert>
+
 
     <update id="updateTestcase" parameterType="org.tangxi.testplatform.model.TestCase" useGeneratedKeys="true"
             keyProperty="id">
@@ -29,16 +54,19 @@
             test_name         = #{testName},
             method            = #{method},
             url               = #{url},
+            base_url_id          = #{baseUrlId},
             headers           = #{headers},
             parameters        = #{parameters},
-            created_at        = #{createdAt},
             updated_at        = #{updatedAt},
+            module_id         = #{moduleId},
             suite             = #{suite},
-            test_module       = #{testModule},
             descs             = #{descs},
             pre_action_names  = #{preActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
             post_action_names = #{postActionNames,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
-            check_points      = #{checkPoints,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler}
+            check_points      = #{checkPoints,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+            start_time        = #{startTime},
+            end_time          = #{endTime},
+            execution_time    = #{executionTime}
         WHERE id = #{id}
     </update>
 
@@ -49,6 +77,7 @@
                 javaType="java.util.List" jdbcType="VARCHAR" property="preActionNames"/>
         <result typeHandler="org.tangxi.testplatform.handler.ListTypeHandler" column="post_action_names"
                 javaType="java.util.List" jdbcType="VARCHAR" property="postActionNames"/>
+        <result column="is_passed" property="isPassed" />
     </resultMap>
     <select id="getTestCaseById" resultMap="testcaseMap" parameterType="int">
         SELECT *
@@ -56,13 +85,14 @@
         WHERE id = #{id}
     </select>
 
+    <select id="getTestCaseResultById" resultType="Map" parameterType="int">
+        SELECT is_passed FROM zsi_test_case WHERE id = #{id}
+    </select>
+
     <select id="getTestCaseByFields" parameterType="Map" resultMap="testcaseMap">
         SELECT * FROM zsi_test_case WHERE 1=1
-        <if test="testName != null">
-            AND test_name LIKE concat('%',#{testName},'%')
-        </if>
-        <if test="descs != null">
-            AND descs LIKE concat('%',#{descs},'%')
+        <if test="searchKey != null">
+            AND (test_name LIKE concat('%',#{searchKey},'%')  OR descs LIKE concat('%',#{searchKey},'%'))
         </if>
         <if test="isDeleted == 1">
             AND is_deleted = 1
@@ -70,13 +100,26 @@
         <if test="isDisabled == 1">
             AND is_disabled = 1
         </if>
+        <if test="moduleId != null">
+            AND module_id IN (SELECT id FROM zsi_module zm WHERE find_in_set(zm.id,getChildLst(#{moduleId})))
+        </if>
+        ORDER BY updated_at DESC
     </select>
 
-    <update id="deleteTestCaseById" parameterType="java.lang.Integer" useGeneratedKeys="true" keyProperty="id">
-        UPDATE zsi_test_case
-        SET is_deleted = 1
-        WHERE id = #{id}
-    </update>
+    <!--根据moduleId获取测试用例-->
+    <select id="getTestCaseByModuleId" parameterType="Integer" resultMap="testcaseMap">
+        SELECT * FROM zsi_test_case WHERE module_id = #{moduleId}
+    </select>
+
+    <!--根据id物理删除测试用例-->
+    <delete id="deleteTestCaseById" parameterType="java.lang.Integer">
+        DELETE FROM zsi_test_case WHERE id = #{id}
+    </delete>
+
+    <!--根据模块id物理删除测试用例-->
+    <delete id="delteTestCaseByModuleId" parameterType="java.lang.Integer">
+        DELETE FROM zsi_test_case WHERE module_id = #{moduleId}
+    </delete>
 
     <update id="disableTestCaseById" parameterType="java.lang.Integer" useGeneratedKeys="true" keyProperty="id">
         UPDATE zsi_test_case
@@ -97,4 +140,10 @@
     <select id="getTestCasesByGroups" parameterType="String" resultMap="testcaseMap">
         SELECT * FROM zsi_test_case WHERE groups = #{groups}
     </select>
+
+    <!--更新测试用例执行结果-->
+    <update id="updateTestCaseResult">
+        UPDATE zsi_test_case SET is_passed = #{resultStatus}, result = #{testResult} WHERE id = #{id}
+    </update>
+
 </mapper>

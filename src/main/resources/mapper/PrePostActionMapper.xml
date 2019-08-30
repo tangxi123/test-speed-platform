@@ -2,33 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.tangxi.testplatform.mapper.PrePostActionMapper">
+    <!--创建前后置动作，不包括明细-->
     <insert id="createAction" parameterType="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper" useGeneratedKeys="true" keyProperty="id">
         <selectKey keyProperty="id" resultType="int" order="AFTER">
             SELECT LAST_INSERT_ID()
         </selectKey>
-        INSERT INTO  zsi_prepostaction (name, descs, action_type) VALUES (#{name},#{descs},#{actionType})
+        INSERT INTO  zsi_prepostaction (name, descs, action_type, module_id,create_at, update_at)
+        VALUES (#{name},#{descs},#{actionType},#{moduleId},#{createAt},#{updateAt})
     </insert>
 
     <!--插入类型为Sql的prepostactionsql从表数据-->
     <insert id="createSqlAction" parameterType="org.tangxi.testplatform.model.prePostAction.PrePostAction"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO zsi_prepostaction_type_sql(host, port, `database`, user, password, `sql`, action_id)
-        VALUES (#{host},#{port},#{database},#{user},#{password},#{sql},#{actionId})
+        INSERT INTO zsi_prepostaction_type_sql( `sql`, action_id,db_config_id)
+        VALUES (#{sql,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+                #{actionId},
+                #{dbConfigId})
     </insert>
 
+    <!--更新前后置动作，不包括明细-->
     <update id="updateAction"  parameterType="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper" useGeneratedKeys="true" keyProperty="id">
-        UPDATE zsi_prepostaction SET `name` = #{name}, descs = #{descs}, action_type = #{actionType} WHERE id = #{id}
+        UPDATE zsi_prepostaction SET `name` = #{name}, descs = #{descs}, action_type = #{actionType},module_id = #{moduleId},update_at = #{updateAt} WHERE id = #{id}
     </update>
 
+    <!--更新sql类型的前后置动作明细-->
     <update id="updateSqlAction"  parameterType="org.tangxi.testplatform.model.prePostAction.PrePostAction"
             useGeneratedKeys="true" keyProperty="id">
         UPDATE zsi_prepostaction_type_sql SET
-            host = #{host},
-            port = #{port},
-            `database` = #{database},
-            `user` = #{user},
-            `password` = #{password},
-            `sql` = #{sql}
+            `sql` = #{sql,javaType=List,jdbcType=VARCHAR,typeHandler=org.tangxi.testplatform.handler.ListTypeHandler},
+            db_config_id = #{dbConfigId}
         WHERE action_id = #{actionId}
     </update>
 
@@ -38,51 +40,83 @@
         <result property="name"  column="name"/>
         <result property="descs" column="descs"/>
         <result property="actionType" column="action_type"/>
-        <association property="action" resultMap="actionResultMap"/>
+        <result property="moduleId" column="module_id"/>
+        <discriminator javaType="org.tangxi.testplatform.model.prePostAction.PrePostActionType" column="action_type">
+            <case value="SQL" resultType="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper">
+                <association property="action" resultMap="actionSQLResultMap"/>
+            </case>
+        </discriminator>
     </resultMap>
 
     <!--设置PrePostAction的resultMap-->
-    <resultMap id="actionResultMap" type="org.tangxi.testplatform.model.prePostAction.PrePostActionSql">
+    <resultMap id="actionSQLResultMap" type="org.tangxi.testplatform.model.prePostAction.PrePostActionSql">
         <id property="id" column="action_sql_id"/>
-        <result property="host" column="host"/>
-        <result property="port" column="port"/>
-        <result property="database" column="database"/>
-        <result property="user" column="user"/>
-        <result property="password" column="password"/>
-        <result property="sql" column="sql"/>
+        <result property="sql" column="sql" javaType="List" jdbcType="VARCHAR" typeHandler="org.tangxi.testplatform.handler.ListTypeHandler"/>
         <result property="actionId" column="action_id"/>
+        <result property="dbConfigId" column="db_config_id"/>
     </resultMap>
 
-    <!--根据id查询前后置动作-->
-    <select id="getActionById" resultMap="actionWrapperResult">
+    <!--根据前后置动作名称或描述查询所有的前后置动作，包括明细-->
+    <select id="getActionWrappers" parameterType="Map" resultType="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper">
+        SELECT * FROM zsi_prepostaction WHERE module_id = #{moduleId}
+            <if test="searchKey !=null">
+                AND (name like concat('%',#{searchKey},'%') OR descs LIKE concat('%',#{searchKey},'%'))
+            </if>
+        ORDER BY update_at DESC
+    </select>
+
+    <!--获取所有的前后置动作包括明细-->
+    <select id="getAllActions" resultType="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper">
+        SELECT * FROM zsi_prepostaction ORDER BY update_at DESC
+    </select>
+
+    <!--根据id查询前后置动作，不包括明细-->
+    <select id="getActionById" resultType="org.tangxi.testplatform.model.prePostAction.PrePostActionWrapper">
+        SELECT * FROM zsi_prepostaction WHERE id = #{id}
+    </select>
+    <!--根据id查询sql类型的前后置动作-->
+    <select id="getSqlActionById" resultMap="actionWrapperResult">
         SELECT
             zp.id as action_wrapper_id,
             zp.`name` as name,
             zp.descs as descs,
-            zp.action_type as actionType,
+            zp.action_type as action_type,
+            zp.module_id as module_id,
             zpts.id as action_sql_id,
-            zpts.`host` as host,
-            zpts.`database` as `database`,
-            zpts.user as user,
-            zpts.password as password,
             zpts.`sql` as `sql`,
-            zpts.action_id as actionId
+            zpts.action_id as action_id,
+            zpts.db_config_id as db_config_id
         FROM zsi_prepostaction zp LEFT JOIN zsi_prepostaction_type_sql zpts ON zp.id = zpts.action_id
         WHERE zp.id = #{id}
     </select>
 
+
+
     <select id="getActionsByFields" parameterType="Map" resultMap="actionWrapperResult">
-        SELECT * FROM zsi_prepostaction zp LEFT JOIN zsi_prepostaction_type_sql zpts ON zp.id = zpts.action_id WHERE 1=1
+        SELECT
+          zp.id as action_wrapper_id,
+          zp.`name` as name,
+          zp.descs as descs,
+          zp.action_type as action_type,
+          zpts.id as action_sql_id,
+          zpts.`sql` as `sql`,
+          zpts.action_id
+        FROM zsi_prepostaction zp LEFT JOIN zsi_prepostaction_type_sql zpts ON zp.id = zpts.action_id WHERE module_id = #{moduleId}
         <if test="name != null">
             AND name LIKE concat('%',#{name},'%')
         </if>
         <if test="descs != null">
             AND descs LIKE concat('%',#{descs},'%')
         </if>
+        ORDER BY update_at DESC
     </select>
 
     <delete id="deleteActionById" parameterType="Integer">
         DELETE FROM zsi_prepostaction WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteActionByModuleId" parameterType="Integer">
+        DELETE FROM zsi_prepostaction WHERE module_id = #{moduleId}
     </delete>
 
     <select id="getActionCountByName" resultType="Integer">
