@@ -51,7 +51,7 @@ public class LogService {
             PageHelper.startPage(pageNum, pageSize);
             List<TestCaseLog> testCaseLogs = logMapper.getTestCaseLogsByFields(params);
             PageInfo<TestCaseLog> logs = new PageInfo<>(testCaseLogs);
-            LOG.info("查询到的测试用例列表：{}", testCaseLogs);
+            LOG.info("查询到的测试用例列表为：{}", testCaseLogs);
             LOG.info("返回的分页列表为：{}", logs);
             return new Response<>(200, logs, "查询成功");
         } catch (Exception e) {

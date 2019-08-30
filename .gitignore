@@ -1,3 +1,6 @@
 .idea/
 target/
 *.iml
+test-output/
+.gitignore
+*.xmind
