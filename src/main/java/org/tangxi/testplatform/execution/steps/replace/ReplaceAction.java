@@ -1,5 +1,6 @@
 package org.tangxi.testplatform.execution.steps.replace;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +107,10 @@ public class ReplaceAction {
      */
     private List<SqlInfo> replaceActionSql(List<SqlInfo> sql, int moduleId){
         List<SqlInfo> replacedSqls = new ArrayList<>();
-        for(SqlInfo s : sql) {
+        String sqlStr = JacksonUtil.toJson(sql);
+        List<SqlInfo> sqlInfos = JacksonUtil.fromJson(sqlStr, new TypeReference<List<SqlInfo>>() {
+        });
+        for(SqlInfo s : sqlInfos) {
             String replaceSql = replaceHolder.replaceHolder(s.getSql(), PARAM_PLACEHOLDER, moduleId);
             s.setSql(replaceSql);
             replacedSqls.add(s);

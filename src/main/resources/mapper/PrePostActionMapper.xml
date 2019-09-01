@@ -51,7 +51,7 @@
     <!--设置PrePostAction的resultMap-->
     <resultMap id="actionSQLResultMap" type="org.tangxi.testplatform.model.prePostAction.PrePostActionSql">
         <id property="id" column="action_sql_id"/>
-        <result property="sql" column="sql" javaType="List" jdbcType="VARCHAR" typeHandler="org.tangxi.testplatform.handler.ListTypeHandler"/>
+        <result property="sql" column="sql" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="org.tangxi.testplatform.handler.ListTypeHandler"/>
         <result property="actionId" column="action_id"/>
         <result property="dbConfigId" column="db_config_id"/>
     </resultMap>

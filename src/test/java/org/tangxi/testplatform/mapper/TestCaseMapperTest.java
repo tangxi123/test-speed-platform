@@ -20,19 +20,19 @@ public class TestCaseMapperTest {
     @Autowired
     TestCaseMapper testCaseMapper;
 
-    @Test
-    public void getParamCountByParameter() {
-        System.out.println(testCaseMapper.getParamCountByParameter("${testCaseId}"));
-    }
-
-    @Test
-    public void getActionCountByActionName(){
-        System.out.println(testCaseMapper.getActionCountByActionName("\"插入一条数据测试\""));
-    }
-
-    @Test
-    public void getTestCasesByGroups(){
-        List<TestCase> testCases = testCaseMapper.getTestCasesByGroups("新增parameter");
-        System.out.println(JacksonUtil.toJson(testCases));
-    }
+//    @Test
+//    public void getParamCountByParameter() {
+//        System.out.println(testCaseMapper.getParamCountByParameter("${testCaseId}"));
+//    }
+//
+//    @Test
+//    public void getActionCountByActionName(){
+//        System.out.println(testCaseMapper.getActionCountByActionName("\"插入一条数据测试\""));
+//    }
+//
+//    @Test
+//    public void getTestCasesByGroups(){
+//        List<TestCase> testCases = testCaseMapper.getTestCasesByGroups("新增parameter");
+//        System.out.println(JacksonUtil.toJson(testCases));
+//    }
 }
