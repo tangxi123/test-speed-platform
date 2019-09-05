@@ -14,7 +14,7 @@ import org.tangxi.testplatform.service.PrePostActionService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("actions/")
+@RequestMapping("/api/actions/")
 public class
 
 

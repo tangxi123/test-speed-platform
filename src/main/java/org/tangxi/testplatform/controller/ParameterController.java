@@ -13,7 +13,7 @@ import org.tangxi.testplatform.service.ParameterService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/parameters")
+@RequestMapping("/api/parameters")
 public class ParameterController {
     private static final Logger LOG = LoggerFactory.getLogger(ParameterController.class);
 

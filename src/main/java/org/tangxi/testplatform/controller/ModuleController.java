@@ -11,7 +11,7 @@ import org.tangxi.testplatform.service.ModuleService;
 import org.tangxi.testplatform.service.TestCaseService;
 
 @RestController
-@RequestMapping("/modules")
+@RequestMapping("/api/modules")
 public class ModuleController {
     private static final Logger LOG = LoggerFactory.getLogger(ModuleController.class);
 

@@ -13,7 +13,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/url")
+@RequestMapping("/api/url")
 public class UrlController {
     private static final Logger LOG = LoggerFactory.getLogger(UrlController.class);
 

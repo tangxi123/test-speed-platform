@@ -13,7 +13,7 @@ import org.tangxi.testplatform.service.DatabaseConfigService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/dbConfig")
+@RequestMapping("/api/dbConfig")
 public class DatabaseConfigController {
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseConfigController.class);
 

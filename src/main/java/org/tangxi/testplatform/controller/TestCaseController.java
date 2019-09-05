@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/testcases")
+@RequestMapping("/api/testcases")
 public class TestCaseController {
     private static final Logger LOG = LoggerFactory.getLogger(TestCaseController.class);
 

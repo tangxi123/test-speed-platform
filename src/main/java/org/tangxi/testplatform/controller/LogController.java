@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/logs")
+@RequestMapping("/api/logs")
 public class LogController {
     private static final Logger LOG = LoggerFactory.getLogger(LogController.class);
 
