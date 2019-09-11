@@ -94,12 +94,6 @@
         <if test="searchKey != null">
             AND (test_name LIKE concat('%',#{searchKey},'%')  OR descs LIKE concat('%',#{searchKey},'%'))
         </if>
-        <if test="isDeleted == 1">
-            AND is_deleted = 1
-        </if>
-        <if test="isDisabled == 1">
-            AND is_disabled = 1
-        </if>
         <if test="moduleId != null">
             AND module_id IN (SELECT id FROM zsi_module zm WHERE find_in_set(zm.id,getChildLst(#{moduleId})))
         </if>
@@ -129,11 +123,11 @@
 
     <!--查询某个参数值的个数-->
     <select id="getParamCountByParameter" resultType="Integer" >
-        SELECT count(*) FROM zsi_test_case WHERE parameters LIKE concat('%',#{parameter},'%') AND is_deleted = 0
+        SELECT count(*) FROM zsi_test_case WHERE parameters LIKE concat('%',#{parameter},'%')
     </select>
 
     <select id="getActionCountByActionName" resultType="Integer">
-        SELECT count(*) FROM zsi_test_case WHERE (zsi_test_case.pre_action_names LIKE concat('%',#{action},'%') or post_action_names LIKE concat('%',#{action},'%')) AND is_deleted = 0
+        SELECT count(*) FROM zsi_test_case WHERE (zsi_test_case.pre_action_names LIKE concat('%',#{action},'%') or post_action_names LIKE concat('%',#{action},'%'))
     </select>
 
     <!--根据groups名字查询所有的测试用例-->

@@ -20,8 +20,8 @@
 
     <!--向parameterToken从表插入数据-->
     <insert id="createTokenParam" parameterType="org.tangxi.testplatform.model.parameter.Parameter" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO zsi_parameter_type_token (url,user_data, token, param_id)
-                VALUES (#{url},#{userData},#{token},#{paramId})
+        INSERT INTO zsi_parameter_type_token (url,headers,user_data, token, param_id)
+                VALUES (#{url},#{headers},#{userData},#{token},#{paramId})
     </insert>
 
     <!--向parameterKeyValue从表插入数据-->
@@ -33,7 +33,7 @@
     <update id="updateParam" parameterType="org.tangxi.testplatform.model.parameter.ParameterWrapper"
             useGeneratedKeys="true" keyProperty="id">
         UPDATE zsi_parameter
-        SET `name` = #{name}, descs = #{descs}, type = #{type}, update_at = #{updateAt},module_id = #{moduleId},headers = #{headers}
+        SET `name` = #{name}, descs = #{descs}, type = #{type}, update_at = #{updateAt},module_id = #{moduleId}
         WHERE id = #{id}
     </update>
 
@@ -54,6 +54,7 @@
         UPDATE zsi_parameter_type_token
         SET
             url = #{url},
+            headers = #{headers},
             user_data = #{userData}
         WHERE param_id = #{paramId}
     </update>
@@ -111,6 +112,7 @@
     <resultMap id="parameterTOKENResultMap" type="org.tangxi.testplatform.model.parameter.ParameterToken">
         <id property="id" column="parameter_token_id"/>
         <result property="url" column="url"/>
+        <result property="headers" column="headers"/>
         <result property="userData" column="user_data"/>
         <result property="paramId" column="param_id"/>
     </resultMap>
@@ -151,6 +153,7 @@
             zp.descs as descs,
             zp.type as type,
             zptt.id as parameter_token_id,
+            zptt.headers as headers,
             zptt.url as url,
             zptt.user_data as user_data
         FROM zsi_parameter zp LEFT JOIN zsi_parameter_type_token zptt ON zp.id = zptt.param_id

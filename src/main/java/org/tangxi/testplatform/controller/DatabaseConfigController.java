@@ -45,6 +45,18 @@ public class DatabaseConfigController {
     }
 
     /**
+     * 更新databaseConfig配置
+     * @param id
+     * @return
+     */
+    @CrossOrigin
+    @DeleteMapping("/delete/{id}")
+    public Response<?> deleteDatabaseConfig(@PathVariable int id){
+        LOG.info("传入的参数为：", JacksonUtil.toJson(id));
+        return databaseConfigService.deleteDatabaseConfig(id);
+    }
+
+    /**
      * 根据id查询databaseConfig
      * @param id
      * @return

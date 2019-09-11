@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.tangxi.testplatform.common.Response;
 import org.tangxi.testplatform.common.exception.UnexpectedDatabaseConfigException;
 import org.tangxi.testplatform.mapper.DatabaseConfigMapper;
@@ -56,6 +57,21 @@ public class DatabaseConfigService {
         }catch (Exception e){
             throw new UnexpectedDatabaseConfigException(e);
         }
+    }
+
+    /**
+     * 根据id删除databaseConfig配置
+     * @param id
+     * @return
+     */
+    public Response<?> deleteDatabaseConfig(int id){
+        try{
+            int i = databaseConfigMapper.deleteDatabaseConfigById(id+"");
+            return new Response<>(200,null,"删除成功");
+        }catch (Exception e){
+            throw new UnexpectedDatabaseConfigException(e);
+        }
+
     }
 
     /**
