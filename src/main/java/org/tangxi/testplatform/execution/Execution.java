@@ -83,12 +83,12 @@ public class Execution {
 
     public void run(int id) {
         try {
-            logs.add("执行的测试用例id为：" + id);
+            Execution.logs.add("执行的测试用例id为：" + id);
             List<PrePostActionWrapper> preActionWrappers = new ArrayList<>();
             testCase = testCaseMapper.getTestCaseById(id);
-            logs.add("执行的测试用例名字为："+testCase.getTestName());
+            Execution.logs.add("执行的测试用例名字为："+testCase.getTestName());
             if (testCase == null) {
-                logs.add("不存在的测试用例id");
+                Execution.logs.add("不存在的测试用例id");
                 throw new TestCaseNotFoundException("不存在的测试用例id");
             }
             testCaseWrapper = replaceTestCase.generateReplacedTestCaseWrapper(testCase);//替换参数并生成testCaseWrapper
@@ -104,7 +104,7 @@ public class Execution {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             e.printStackTrace(new PrintStream(outputStream));
             String exceptionString = outputStream.toString();
-            Execution.logs.add("错误："+exceptionString);
+            Execution.logs.add("运行测试用例错误："+exceptionString);
             checkResults = testCaseWrapper.getCheckResult();
             testCaseMapper.updateTestCaseResult(testCase.getId(), JacksonUtil.toJson(checkResults), RUN_EXCEPTION_STATUS);
             throw new TestCaseRunException(e.getMessage());
@@ -117,7 +117,7 @@ public class Execution {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             e.printStackTrace(new PrintStream(outputStream));
             String exceptionString = outputStream.toString();
-            Execution.logs.add("错误："+exceptionString);
+            Execution.logs.add("异常错误："+exceptionString);
             String message = e.toString();
             testCaseMapper.updateTestCaseResult(testCase.getId(), message, UNEXPECTED_EXCEPTION_STATUS);
             throw new UnexpectedTestCaseException(e.getMessage());

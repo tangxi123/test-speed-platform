@@ -41,7 +41,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(TestCaseRunException.class)
     public Response<?> testCaseRunError(TestCaseRunException e){
         LOG.error(e.getMessage());
-        Execution.logs.add("错误："+e.getMessage());
+//        Execution.logs.add("错误："+e.getMessage());
 //        throw new TestCaseRunException(e);
         return new Response<>(400,null,e.getMessage());
     }
@@ -84,7 +84,6 @@ public class CustomExceptionHandler {
         e.printStackTrace(new PrintStream(outputStream));
         String exceptionString = outputStream.toString();
         LOG.error(exceptionString);
-        Execution.logs.add("错误："+exceptionString);
         return new Response<>(400, null, e.getMessage());
     }
 
@@ -96,7 +95,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(TestCaseNotFoundException.class)
     public Response<?> testCaseNotFoundException(TestCaseNotFoundException e){
         LOG.error(e.getMessage());
-        Execution.logs.add("错误："+e.getMessage());
+//        Execution.logs.add("错误："+e.getMessage());
 //        throw new TestCaseNotFoundException(e);
         return new Response<>(400,null,e.getMessage());
     }
